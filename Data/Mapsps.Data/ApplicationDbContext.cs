@@ -22,9 +22,17 @@
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+
         }
 
+        
         public DbSet<Setting> Settings { get; set; }
+
+        public DbSet<Cat> Cats { get; set; }
+
+        public DbSet<Image> Images { get; set; }
+
+        public DbSet<Nickname> Nicknames { get; set; }
 
         public override int SaveChanges() => this.SaveChanges(true);
 
