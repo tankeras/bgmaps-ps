@@ -1,0 +1,7 @@
+﻿@using Mapsps.Data
+@using Microsoft.EntityFrameworkCore;
+@inject ApplicationDbContext db
+@{
+    var count = this.db.Cats.Count();
+}
+<h1>@count</h1>

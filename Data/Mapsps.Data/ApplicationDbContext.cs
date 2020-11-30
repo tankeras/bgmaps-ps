@@ -79,7 +79,7 @@
             foreach (var foreignKey in foreignKeys)
             {
                 foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
-            }
+            }          
         }
 
         private static void SetIsDeletedQueryFilter<T>(ModelBuilder builder)

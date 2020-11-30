@@ -8,6 +8,7 @@
     using Mapsps.Data.Models;
     using Mapsps.Data.Repositories;
     using Mapsps.Data.Seeding;
+    using Mapsps.Services;
     using Mapsps.Services.Data;
     using Mapsps.Services.Mapping;
     using Mapsps.Services.Messaging;
@@ -64,6 +65,7 @@
             // Application services
             services.AddTransient<IEmailSender, NullMessageSender>();
             services.AddTransient<ISettingsService, SettingsService>();
+            services.AddTransient<CatService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
