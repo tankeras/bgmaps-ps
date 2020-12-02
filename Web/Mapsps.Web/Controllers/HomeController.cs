@@ -9,8 +9,7 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-    using MetadataExtractor;
-    using MetadataExtractor.Formats.Exif;
+
 
     public class HomeController : BaseController
     {
