@@ -41,7 +41,23 @@
                 return this.View();
             }            
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            this.catService.CreateCatAsync(input, userId);
+            try
+            {               
+                if (this.catService.CreateCatAsync(input, userId))
+                {
+                    return this.RedirectToAction("All");
+                }
+                else
+                {
+                    this.ModelState.AddModelError(string.Empty, "Image does not contain location data");
+                    return this.View("Add");
+                }
+            }
+            catch (System.Exception)
+            {
+                this.ModelState.AddModelError(string.Empty, "Image does not contain location data");
+                return this.View("Add");
+            }
 
             
             return this.RedirectToAction("All");
