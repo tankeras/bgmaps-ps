@@ -1,7 +1,8 @@
 ﻿namespace Mapsps.Web
 {
+    using System;
     using System.Reflection;
-
+    using Azure.Storage.Blobs;
     using Mapsps.Data;
     using Mapsps.Data.Common;
     using Mapsps.Data.Common.Repositories;
@@ -56,6 +57,8 @@
             services.AddRazorPages();
 
             services.AddSingleton(this.configuration);
+            services.AddSingleton(x => new BlobServiceClient(configuration.GetValue<string>("AzureBlobConnectionString")));
+            services.AddSingleton<BlobService>();
 
             // Data repositories
             services.AddScoped(typeof(IDeletableEntityRepository<>), typeof(EfDeletableEntityRepository<>));

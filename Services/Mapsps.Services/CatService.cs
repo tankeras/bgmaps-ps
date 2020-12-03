@@ -1,10 +1,13 @@
-﻿using ExifLib;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using ExifLib;
 using Mapsps.Data;
 using Mapsps.Data.Models;
 using Mapsps.Web.ViewModels;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,14 +20,17 @@ namespace Mapsps.Services
     public class CatService
     {
         private readonly ApplicationDbContext db;
+        private readonly IConfiguration config;
+        private readonly BlobService blobService;
 
-        public CatService(ApplicationDbContext db)
+        public CatService(ApplicationDbContext db, IConfiguration config, BlobService blobService)
         {
             this.db = db;
+            this.config = config;
+            this.blobService = blobService;
         }
-        public bool CreateCatAsync(AddCatViewModel input, string userId)
+        public async Task<bool> CreateCatAsync(AddCatViewModel input, string userId)
         {
-            
             var coordinates = this.ExtractGeoData(input.Image.OpenReadStream());
             var longitude = coordinates.longitude;
             var latitude = coordinates.latitude;
@@ -33,7 +39,7 @@ namespace Mapsps.Services
                 return false;
             }
             var cat = new Cat();
-            var niki = new Image
+            var image = new Image
             {
                 Extension = Path.GetExtension(input.Image.FileName),
                 UserId = userId,
@@ -42,8 +48,9 @@ namespace Mapsps.Services
                 Longitude = longitude,
                 Latitude = latitude
             };
-            this.db.Images.Add(niki);
+            this.db.Images.Add(image);
             this.db.SaveChanges();
+            await this.blobService.UploadBlob(input.Image.OpenReadStream(), image.Id);
             return true;
         }
         public (double longitude, double latitude) ExtractGeoData(Stream stream)
@@ -59,8 +66,7 @@ namespace Mapsps.Services
                     && reader.GetTagValue<Double[]>(ExifTags.GPSLatitude, out GpsLatArray))
                 {
                     GpsLongDouble = GpsLongArray[0] + GpsLongArray[1] / 60 + GpsLongArray[2] / 3600;
-                    GpsLatDouble = GpsLatArray[0] + GpsLatArray[1] / 60 + GpsLatArray[2] / 3600;
-
+                    GpsLatDouble = GpsLatArray[0] + GpsLatArray[1] / 60 + GpsLatArray[2] / 3600;                    
                     return (GpsLongDouble, GpsLatDouble);
                 }
                 else
@@ -70,7 +76,7 @@ namespace Mapsps.Services
 
             }
         }
-
+        
     }
 
 }

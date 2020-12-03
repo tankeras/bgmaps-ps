@@ -3,6 +3,7 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Security.Claims;
+    using System.Threading.Tasks;
     using Mapsps.Data.Models;
     using Mapsps.Services;
     using Mapsps.Web.ViewModels;
@@ -34,7 +35,7 @@
 
         [HttpPost]
         [Authorize]
-        public IActionResult Add(AddCatViewModel input)
+        public async Task<IActionResult> Add(AddCatViewModel input)
         {
             if (!ModelState.IsValid)
             {
@@ -43,8 +44,9 @@
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             try
             {               
-                if (this.catService.CreateCatAsync(input, userId))
+                if (await this.catService.CreateCatAsync(input, userId))
                 {
+                   
                     return this.RedirectToAction("All");
                 }
                 else
