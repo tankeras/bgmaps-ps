@@ -3,8 +3,8 @@ using CloudinaryDotNet.Actions;
 using ExifLib;
 using Mapsps.Data;
 using Mapsps.Data.Models;
+using Mapsps.Services.Mapping;
 using Mapsps.Web.ViewModels;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,16 +22,21 @@ namespace Mapsps.Services
         private readonly ApplicationDbContext db;
         private readonly IConfiguration config;
         private readonly BlobService blobService;
+        private readonly ImageService imageService;
 
-        public CatService(ApplicationDbContext db, IConfiguration config, BlobService blobService)
+        public CatService(ApplicationDbContext db,
+            IConfiguration config,
+            BlobService blobService,
+            ImageService imageService)
         {
             this.db = db;
             this.config = config;
             this.blobService = blobService;
+            this.imageService = imageService;
         }
         public async Task<bool> CreateCatAsync(AddCatViewModel input, string userId)
         {
-            var coordinates = this.ExtractGeoData(input.Image.OpenReadStream());
+            var coordinates = this.imageService.ExtractGeoData(input.Image.OpenReadStream());
             var longitude = coordinates.longitude;
             var latitude = coordinates.latitude;
             if (latitude == 1)
@@ -39,6 +44,7 @@ namespace Mapsps.Services
                 return false;
             }
             var cat = new Cat();
+            cat.Nicknames.Add(new Nickname() { Name = input.Nickname });
             var image = new Image
             {
                 Extension = Path.GetExtension(input.Image.FileName),
@@ -49,34 +55,20 @@ namespace Mapsps.Services
                 Latitude = latitude
             };
             this.db.Images.Add(image);
+            this.db.Cats.Add(cat);
             this.db.SaveChanges();
-            await this.blobService.UploadBlob(input.Image.OpenReadStream(), image.Id);
+            await this.blobService.UploadBlob(input.Image.OpenReadStream(), image.Id, image.Extension);
             return true;
         }
-        public (double longitude, double latitude) ExtractGeoData(Stream stream)
+        public IQueryable<AllCatsViewModel> GetAllCatsAsync()
         {
-            using (ExifReader reader = new ExifReader(stream))
-            {
-                Double[] GpsLongArray;
-                Double[] GpsLatArray;
-                Double GpsLongDouble;
-                Double GpsLatDouble;
-                
-                if (reader.GetTagValue<Double[]>(ExifTags.GPSLongitude, out GpsLongArray)
-                    && reader.GetTagValue<Double[]>(ExifTags.GPSLatitude, out GpsLatArray))
-                {
-                    GpsLongDouble = GpsLongArray[0] + GpsLongArray[1] / 60 + GpsLongArray[2] / 3600;
-                    GpsLatDouble = GpsLatArray[0] + GpsLatArray[1] / 60 + GpsLatArray[2] / 3600;                    
-                    return (GpsLongDouble, GpsLatDouble);
-                }
-                else
-                {
-                    return (1, 1);
-                }
-
-            }
+            var count = this.db.Cats.Count();
+            return this.db.Cats.To<AllCatsViewModel>();
         }
-        
-    }
 
+
+    }
 }
+
+
+

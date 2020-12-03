@@ -1,5 +1,6 @@
 ﻿using Mapsps.Data.Common.Models;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Mapsps.Data.Models
 {
@@ -14,6 +15,9 @@ namespace Mapsps.Data.Models
 
         public ICollection<Nickname> Nicknames { get; set; }
 
-        public int ConfirmedPetsCount { get; set; }    
+        public int ConfirmedPetsCount { get; set; }
+
+        public string MostVotedNickname =>this.Nicknames.Count>0 ? this.Nicknames.OrderBy(x => x.Votes).LastOrDefault().Name : string.Empty;
+        
     }
 }
