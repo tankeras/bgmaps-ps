@@ -60,12 +60,34 @@ namespace Mapsps.Services
             await this.blobService.UploadBlob(input.Image.OpenReadStream(), image.Id, image.Extension);
             return true;
         }
-        public IQueryable<AllCatsViewModel> GetAllCatsAsync()
+        public ICollection<AllCatsViewModel> GetAllCatsAsync() 
         {
-            var count = this.db.Cats.Count();
-            return this.db.Cats.To<AllCatsViewModel>();
-        }
+            var viewModels = new List<AllCatsViewModel>();
+            var result = this.db.Cats.Include("Nicknames")
+                .Select(x => new AllCatsViewModel
+                {
+                    ConfirmedPetsCount = x.ConfirmedPetsCount,
+                    MostVotedNickname = x.MostVotedNickname,
+                    ImagesId = new HashSet<string>(),
+                    Id=x.Id
+                })
+                .ToList();
+            foreach (var cat in result)
+            {
+                foreach (var image in this.db.Cats.Include("Images").Include("Nicknames").Where(x => x.Id == cat.Id).FirstOrDefault().Images)
+                {
+                    cat.ImagesId.Add(image.Id + image.Extension);
+                }
+            }
+            return result;
 
+            //var count = this.db.Cats.Count();
+            //var projection = this.db.Cats.Include("Images").Include("Nicknames").To<AllCatsViewModel>();             
+
+           
+
+        }
+        
 
     }
 }

@@ -55,7 +55,7 @@
                     return this.View("Add");
                 }
             }
-            catch (System.Exception)
+            catch (System.Exception ex )
             {
                 this.ModelState.AddModelError(string.Empty, "Image does not contain location data");
                 return this.View("Add");
@@ -67,7 +67,7 @@
 
         public IActionResult All()
         {
-            return this.View();
+            return this.View(this.catService.GetAllCatsAsync());
         }
 
         public IActionResult Map(string filename)

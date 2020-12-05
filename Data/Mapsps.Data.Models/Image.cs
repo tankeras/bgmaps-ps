@@ -6,15 +6,12 @@ using System.Text;
 
 namespace Mapsps.Data.Models
 {
-    public class Image : BaseModel<int>
+    public class Image : BaseModel<string>
     {
         public Image()
         {
             this.Id = Guid.NewGuid().ToString();
-        }
-        [Key]
-        public string Id { get; set; }
-
+        }      
         public int CatId { get; set; }
 
         public Cat Cat { get; set; }

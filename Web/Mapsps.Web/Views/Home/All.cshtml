@@ -1,4 +1,5 @@
-﻿@model AllCatsViewModel
+﻿@model ICollection<AllCatsViewModel>
+@using Mapsps.Data.Models
 @using Mapsps.Data
 @using Mapsps.Services
 @using Microsoft.EntityFrameworkCore;
@@ -9,15 +10,15 @@
 }
 <h1>@count</h1>
 <div class="row">
-    @foreach (var cat in catservice.GetAllCatsAsync())
+    @foreach (var cat in Model)
     {
         <div class="col-sm-4">
             <div class="card">
-                <img src="..." class="card-img-top" alt="...">
+                <img src="https://tankeras94.blob.core.windows.net/catimages/@cat.ImagesId.FirstOrDefault()" class="card-img-top" alt="...">
                 <div class="card-body">
-                    <h5 class="card-title">@cat.ImageId.FirstOrDefault()</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                    <h5 class="card-title">@cat.MostVotedNickname</h5>
+                    <p class="card-text">@cat.MostVotedNickname; </p>
+                    <a href="#" class="btn btn-primary">Details about @cat.MostVotedNickname</a>
                 </div>
             </div>
         </div>

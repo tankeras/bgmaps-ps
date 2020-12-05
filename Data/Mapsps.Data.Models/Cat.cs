@@ -11,13 +11,14 @@ namespace Mapsps.Data.Models
             this.Images = new HashSet<Image>();
             this.Nicknames = new HashSet<Nickname>();
         }
+
         public ICollection<Image> Images { get; set; }
 
         public ICollection<Nickname> Nicknames { get; set; }
 
         public int ConfirmedPetsCount { get; set; }
 
-        public string MostVotedNickname =>this.Nicknames.Count>0 ? this.Nicknames.OrderBy(x => x.Votes).LastOrDefault().Name : string.Empty;
-        
+        public string MostVotedNickname => this.Nicknames.Count > 0 ? this.Nicknames.OrderBy(x => x.Votes).LastOrDefault().Name : string.Empty;        
     }
+
 }
