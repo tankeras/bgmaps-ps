@@ -1,13 +1,23 @@
 ﻿using ExifLib;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Mapsps.Services
 {
     public class ImageService
     {
+        private readonly IConfiguration config;
+
+        public ImageService(IConfiguration config)
+        {
+            this.config = config;
+        }
         public (double longitude, double latitude) ExtractGeoData(Stream stream)
         {
             using (ExifReader reader = new ExifReader(stream))
@@ -29,6 +39,18 @@ namespace Mapsps.Services
                     return (1, 1);
                 }
             }
+        }
+        public async Task<ImageAnalysis> IsThereCatInImage (Stream stream)
+        {
+            var key = config.GetValue<string>("ComputerVisionKey");
+            var endpoint = config.GetValue<string>("ComputerVisionEndpoint");
+
+            ComputerVisionClient client = new ComputerVisionClient(new ApiKeyServiceClientCredentials(key))
+            { Endpoint = endpoint };
+            List<VisualFeatureTypes?> features = new List<VisualFeatureTypes?>()
+                { VisualFeatureTypes.Tags };     
+            
+            return await client.AnalyzeImageInStreamAsync(stream, features);
         }
     }
 }

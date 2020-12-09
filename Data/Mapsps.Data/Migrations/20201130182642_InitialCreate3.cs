@@ -12,14 +12,30 @@ namespace Mapsps.Data.Migrations
                 table: "Cats",
                 nullable: false,
                 defaultValue: 0.0);
-          
-            
+            migrationBuilder.AddColumn<string>(
+               name: "MostRecentLatitude",
+               table: "Cats",
+               nullable: false,
+               defaultValue: 0.0);
+            migrationBuilder.AddColumn<string>(
+               name: "MostRecentLongitude",
+               table: "Cats",
+               nullable: false,
+               defaultValue: 0.0);
+
+
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
                 name: "MostVotedNickname",
+                table: "Cats");
+            migrationBuilder.DropColumn(
+                name: "MostRecentLatitude",
+                table: "Cats");
+            migrationBuilder.DropColumn(
+                name: "MostRecentLongitude",
                 table: "Cats");
         }
     }

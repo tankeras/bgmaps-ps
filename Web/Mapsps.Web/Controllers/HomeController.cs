@@ -1,5 +1,6 @@
 ﻿namespace Mapsps.Web.Controllers
 {
+    using System.Text.Json;
     using System.Diagnostics;
     using System.Linq;
     using System.Security.Claims;
@@ -10,7 +11,7 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-
+    using System.Text.Encodings.Web;
 
     public class HomeController : BaseController
     {
@@ -27,53 +28,12 @@
             return this.View();
         }
 
-        [Authorize]
-        public IActionResult Add()
-        {
-            return this.View();
-        }
+        
 
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Add(AddCatViewModel input)
-        {
-            if (!ModelState.IsValid)
-            {
-                return this.View();
-            }            
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            try
-            {               
-                if (await this.catService.CreateCatAsync(input, userId))
-                {
-                   
-                    return this.RedirectToAction("All");
-                }
-                else
-                {
-                    this.ModelState.AddModelError(string.Empty, "Image does not contain location data");
-                    return this.View("Add");
-                }
-            }
-            catch (System.Exception ex )
-            {
-                this.ModelState.AddModelError(string.Empty, "Image does not contain location data");
-                return this.View("Add");
-            }
-
-            
-            return this.RedirectToAction("All");
-        }
-
-        public IActionResult All()
-        {
-            return this.View(this.catService.GetAllCatsAsync());
-        }
-
-        public IActionResult Map(string filename)
-        {
-            this.ViewData["Filename"] = filename;
-            return this.View();
+        public IActionResult Map()
+        {                       
+            var jsonString = JsonSerializer.Serialize(this.catService.GetAllCatsAsync());
+            return this.View("Map", jsonString);
         }
         public IActionResult Privacy()
         {

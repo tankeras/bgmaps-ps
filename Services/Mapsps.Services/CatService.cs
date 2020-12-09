@@ -39,10 +39,17 @@ namespace Mapsps.Services
             var coordinates = this.imageService.ExtractGeoData(input.Image.OpenReadStream());
             var longitude = coordinates.longitude;
             var latitude = coordinates.latitude;
+
             if (latitude == 1)
             {
                 return false;
             }
+
+            var imageAnalysis = await imageService.IsThereCatInImage(input.Image.OpenReadStream());
+            if (!imageAnalysis.Tags.Any(x => x.Name == "cat"))
+                {
+                    throw new InvalidDataException($"You can upload this image to {imageAnalysis.Tags.FirstOrDefault().Name}Maps"); 
+                }
             var cat = new Cat();
             cat.Nicknames.Add(new Nickname() { Name = input.Nickname });
             var image = new Image
@@ -60,16 +67,17 @@ namespace Mapsps.Services
             await this.blobService.UploadBlob(input.Image.OpenReadStream(), image.Id, image.Extension);
             return true;
         }
-        public ICollection<AllCatsViewModel> GetAllCatsAsync() 
+        public ICollection<AllCatsViewModel> GetAllCatsAsync()
         {
-            var viewModels = new List<AllCatsViewModel>();
-            var result = this.db.Cats.Include("Nicknames")
+            var result = this.db.Cats.Include("Nicknames").Include("Images")
                 .Select(x => new AllCatsViewModel
                 {
                     ConfirmedPetsCount = x.ConfirmedPetsCount,
                     MostVotedNickname = x.MostVotedNickname,
                     ImagesId = new HashSet<string>(),
-                    Id=x.Id
+                    Id = x.Id,
+                    Latitude = x.MostRecentLatitude,
+                    Longitude = x.MostRecentLongitude
                 })
                 .ToList();
             foreach (var cat in result)
@@ -80,15 +88,39 @@ namespace Mapsps.Services
                 }
             }
             return result;
-
-            //var count = this.db.Cats.Count();
-            //var projection = this.db.Cats.Include("Images").Include("Nicknames").To<AllCatsViewModel>();             
-
-           
-
         }
-        
 
+        public DetailsViewModel GetDetailsAsync(int id)
+        {
+            var cat = this.db.Cats.Include("Nicknames").Include("Images").Where(x => x.Id == id)
+                .Select(x => new DetailsViewModel
+                {
+                    ConfirmedPetsCount = x.ConfirmedPetsCount,
+                    MostVotedNickname = x.MostVotedNickname,
+                    Images = new HashSet<ImageViewModel>(),
+                    Nicknames = new Dictionary<string, int>(),
+                    Id = x.Id,
+
+                })
+                .FirstOrDefault();
+
+            foreach (var nickname in this.db.Cats.Include("Nicknames").Where(x => x.Id == cat.Id).FirstOrDefault().Nicknames)
+            {
+                cat.Nicknames.Add(nickname.Name, nickname.Votes);
+            }
+
+            foreach (var image in this.db.Cats.Include("Images").Where(x => x.Id == cat.Id).FirstOrDefault().Images)
+            {
+                cat.Images.Add(new ImageViewModel
+                {
+                    Id = image.Id,
+                    Extension = image.Extension,
+                    Latitude = image.Latitude,
+                    Longitude = image.Longitude,
+                });
+            }
+            return cat;
+        }
     }
 }
 

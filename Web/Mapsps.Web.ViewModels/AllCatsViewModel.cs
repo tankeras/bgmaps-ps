@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Mapsps.Web.ViewModels
 {
-    public class AllCatsViewModel : IMapFrom<Cat>
+    public class AllCatsViewModel 
     {
         public AllCatsViewModel()
         {
@@ -21,6 +21,10 @@ namespace Mapsps.Web.ViewModels
         public int ConfirmedPetsCount { get; set; }
 
         public ICollection<string> ImagesId { get; set; }
+
+        public double Latitude { get; set; }
+
+        public double Longitude { get; set; }
 
     }
 }
