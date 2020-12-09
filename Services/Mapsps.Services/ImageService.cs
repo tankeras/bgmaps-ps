@@ -49,7 +49,7 @@ namespace Mapsps.Services
             { Endpoint = endpoint };
             List<VisualFeatureTypes?> features = new List<VisualFeatureTypes?>()
                 { VisualFeatureTypes.Tags };     
-            
+ 
             return await client.AnalyzeImageInStreamAsync(stream, features);
         }
     }

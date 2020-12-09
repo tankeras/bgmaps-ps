@@ -8,4 +8,13 @@
 
 
 <h1>@Model.MostVotedNickname</h1>
+@foreach (var nickname in Model.Nicknames)
+{
+<p>
+    @nickname.Key - @nickname.Value;
+</p>
+    
+}
+<a class="btn btn-primary" asp-controller="Cats" asp-action="Details" asp-route-id="@Model.Id">I pet this писи</a>
+
 

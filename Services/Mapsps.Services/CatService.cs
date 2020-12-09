@@ -36,6 +36,21 @@ namespace Mapsps.Services
         }
         public async Task<bool> CreateCatAsync(AddCatViewModel input, string userId)
         {
+
+            var imageAnalysis = await imageService.IsThereCatInImage(input.Image.OpenReadStream());
+            var tags = imageAnalysis.Tags.ToList();
+            tags.Remove(tags.Where(x => x.Name == "outdoor").FirstOrDefault());
+            tags.Remove(tags.Where(x => x.Name == "iutdoor").FirstOrDefault());
+            tags.Remove(tags.Where(x => x.Name == "text").FirstOrDefault());
+            if (tags.Any(x => x.Name == "person"))
+            {
+                throw new InvalidDataException("Monkey butts are not permitted on this site");
+            }
+
+            if (!tags.Any(x => x.Name == "cat"))
+                {
+                    throw new InvalidDataException($"You can upload this image to {tags.FirstOrDefault().Name}Maps"); 
+                }
             var coordinates = this.imageService.ExtractGeoData(input.Image.OpenReadStream());
             var longitude = coordinates.longitude;
             var latitude = coordinates.latitude;
@@ -45,11 +60,6 @@ namespace Mapsps.Services
                 return false;
             }
 
-            var imageAnalysis = await imageService.IsThereCatInImage(input.Image.OpenReadStream());
-            if (!imageAnalysis.Tags.Any(x => x.Name == "cat"))
-                {
-                    throw new InvalidDataException($"You can upload this image to {imageAnalysis.Tags.FirstOrDefault().Name}Maps"); 
-                }
             var cat = new Cat();
             cat.Nicknames.Add(new Nickname() { Name = input.Nickname });
             var image = new Image
