@@ -1,20 +1,51 @@
 ﻿@using Mapsps.Data.Models
 @using Mapsps.Data
 @using Mapsps.Services
+@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims;
+@inject UserManager<ApplicationUser> userManager
 @model DetailsViewModel
 
 @{
 }
 
+<div class="text-center">
+    <h1>@Model.MostVotedNickname</h1>
+    @foreach (var image in @Model.Images)
+    {       
+        <img src="https://tankeras94.blob.core.windows.net/catimages/@image.Url">
+    }
+    @foreach (var nickname in Model.Nicknames)
+    {
+        <p>
+            @nickname.Key - @nickname.Value;
+        </p>
 
-<h1>@Model.MostVotedNickname</h1>
-@foreach (var nickname in Model.Nicknames)
-{
-<p>
-    @nickname.Key - @nickname.Value;
-</p>
-    
-}
-<a class="btn btn-primary" asp-controller="Cats" asp-action="Details" asp-route-id="@Model.Id">I pet this писи</a>
+    }
+    <p>City: @Model.City</p>
+    <p id="confirmed">Confirmed pets: @Model.ConfirmedPetsCount</p>
+    <a id="pet" class="btn btn-primary" asp-controller="Cats" asp-action="Details" asp-route-id="@Model.Id">I pet this писи</a>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $("#pet").click(function (e) {
+        console.log(5)
+        e.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "/Users/ConfirmPet/",
+            data: JSON.stringify(@Model.Id),
+            contentType: "application/json; charset=utf-8",
+            success: (function (data) {
+                $("#confirmed").text("Confirmed pets: " + data);
+                console.log(data)
+            }),
+            error: (function (data) {
+                alert("You have already petted this писи")
+            })
+        });
+    })
+
+</script>
 
 

@@ -26,6 +26,7 @@ namespace Mapsps.Web.Controllers
         [Authorize]
         public IActionResult Add()
         {
+            
             return this.View();
         }
 
@@ -55,22 +56,22 @@ namespace Mapsps.Web.Controllers
                 this.ModelState.AddModelError(string.Empty, ex.Message);
                 return this.View("Add");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                this.ModelState.AddModelError(string.Empty, "Image does not contain location data");
+                this.ModelState.AddModelError(string.Empty, ex.Message /*"Image does not contain location data"*/);
                 return this.View("Add");
             }
             return this.RedirectToAction("All");
         }
 
-        public IActionResult All()
+        public async Task<IActionResult> All()
         {
-            return this.View(this.catService.GetAllCatsAsync());
+            return this.View(await this.catService.GetAllCatsAsync());
         }
 
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            return this.View(this.catService.GetDetailsAsync(id));
+            return this.View(await this.catService.GetDetailsAsync(id));
         }
     }
 }

@@ -1,19 +1,22 @@
-﻿using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
-using ExifLib;
+﻿using ExifLib;
 using Mapsps.Data;
 using Mapsps.Data.Models;
+using Mapsps.Web.ViewModels;
 using Mapsps.Services.Mapping;
 using Mapsps.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using RestSharp;
+using RestSharp.Serialization.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Mapsps.Services
 {
@@ -23,34 +26,35 @@ namespace Mapsps.Services
         private readonly IConfiguration config;
         private readonly BlobService blobService;
         private readonly ImageService imageService;
+        private readonly IHttpClientFactory clientFactory;
 
         public CatService(ApplicationDbContext db,
             IConfiguration config,
             BlobService blobService,
-            ImageService imageService)
+            ImageService imageService,
+            IHttpClientFactory clientFactory)
         {
             this.db = db;
             this.config = config;
             this.blobService = blobService;
             this.imageService = imageService;
+            this.clientFactory = clientFactory;
         }
         public async Task<bool> CreateCatAsync(AddCatViewModel input, string userId)
         {
-
             var imageAnalysis = await imageService.IsThereCatInImage(input.Image.OpenReadStream());
             var tags = imageAnalysis.Tags.ToList();
             tags.Remove(tags.Where(x => x.Name == "outdoor").FirstOrDefault());
             tags.Remove(tags.Where(x => x.Name == "iutdoor").FirstOrDefault());
             tags.Remove(tags.Where(x => x.Name == "text").FirstOrDefault());
-            if (tags.Any(x => x.Name == "person"))
+            if (tags.Any(x => x.Name == "human face"))
             {
-                throw new InvalidDataException("Monkey butts are not permitted on this site");
+                throw new InvalidDataException("No cat can be that ugly");
             }
-
             if (!tags.Any(x => x.Name == "cat"))
-                {
-                    throw new InvalidDataException($"You can upload this image to {tags.FirstOrDefault().Name}Maps"); 
-                }
+            {
+                throw new InvalidDataException($"You can upload this image to {tags.FirstOrDefault().Name}Maps");
+            }
             var coordinates = this.imageService.ExtractGeoData(input.Image.OpenReadStream());
             var longitude = coordinates.longitude;
             var latitude = coordinates.latitude;
@@ -60,7 +64,11 @@ namespace Mapsps.Services
                 return false;
             }
 
-            var cat = new Cat();
+            var cat = new Cat() 
+            { 
+                City = await this.GetCityFromGeoData(latitude, longitude) 
+            };             
+                
             cat.Nicknames.Add(new Nickname() { Name = input.Nickname });
             var image = new Image
             {
@@ -69,7 +77,8 @@ namespace Mapsps.Services
                 Cat = cat,
                 CatId = cat.Id,
                 Longitude = longitude,
-                Latitude = latitude
+                Latitude = latitude,
+                
             };
             this.db.Images.Add(image);
             this.db.Cats.Add(cat);
@@ -77,19 +86,19 @@ namespace Mapsps.Services
             await this.blobService.UploadBlob(input.Image.OpenReadStream(), image.Id, image.Extension);
             return true;
         }
-        public ICollection<AllCatsViewModel> GetAllCatsAsync()
-        {
-            var result = this.db.Cats.Include("Nicknames").Include("Images")
+        public async Task<ICollection<AllCatsViewModel>> GetAllCatsAsync()
+        {            
+            var result = await this.db.Cats.Include("Nicknames").Include("ConfirmedPets").Include("Images")
                 .Select(x => new AllCatsViewModel
                 {
-                    ConfirmedPetsCount = x.ConfirmedPetsCount,
+                    ConfirmedPetsCount = x.ConfirmedPets.Count,
                     MostVotedNickname = x.MostVotedNickname,
                     ImagesId = new HashSet<string>(),
                     Id = x.Id,
                     Latitude = x.MostRecentLatitude,
                     Longitude = x.MostRecentLongitude
                 })
-                .ToList();
+                .ToListAsync();
             foreach (var cat in result)
             {
                 foreach (var image in this.db.Cats.Include("Images").Include("Nicknames").Where(x => x.Id == cat.Id).FirstOrDefault().Images)
@@ -100,19 +109,19 @@ namespace Mapsps.Services
             return result;
         }
 
-        public DetailsViewModel GetDetailsAsync(int id)
+        public async Task<DetailsViewModel> GetDetailsAsync(int id)
         {
-            var cat = this.db.Cats.Include("Nicknames").Include("Images").Where(x => x.Id == id)
+            var cat = await this.db.Cats.Include("Nicknames").Include("Images").Include("ConfirmedPets").Where(x => x.Id == id)
                 .Select(x => new DetailsViewModel
                 {
-                    ConfirmedPetsCount = x.ConfirmedPetsCount,
+                    ConfirmedPetsCount = x.ConfirmedPets.Count(),
                     MostVotedNickname = x.MostVotedNickname,
                     Images = new HashSet<ImageViewModel>(),
                     Nicknames = new Dictionary<string, int>(),
                     Id = x.Id,
-
+                    City=x.City
                 })
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             foreach (var nickname in this.db.Cats.Include("Nicknames").Where(x => x.Id == cat.Id).FirstOrDefault().Nicknames)
             {
@@ -130,6 +139,17 @@ namespace Mapsps.Services
                 });
             }
             return cat;
+        }
+        public async Task<string> GetCityFromGeoData(double latitude, double longitude)
+        {
+            var client = new RestClient($"https://geocodeapi.p.rapidapi.com/GetNearestCities?latitude={latitude}&longitude={longitude}&range=5000");
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("x-rapidapi-key", "339665a255msh1b5ea06ce7ce333p1608b2jsn3091abb7c5a3");
+            request.AddHeader("x-rapidapi-host", "geocodeapi.p.rapidapi.com");
+            IRestResponse response = await client.ExecuteAsync(request);
+            var responseCleaned = response.Content.Substring(5, response.Content.Length - 8);
+            GeoDataViewModel geoData = JsonConvert.DeserializeObject<GeoDataViewModel>(responseCleaned);
+            return geoData.City;
         }
     }
 }

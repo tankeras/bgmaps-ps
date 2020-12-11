@@ -9,20 +9,22 @@
     var count = this.db.Cats.Count();
 }
 <h1>@count</h1>
+<div class="m-0"></div>
 <div class="row">
     @foreach (var cat in Model)
     {
-        <div class="col-sm-4">
+        <div class="col-sm-2">
             <div class="card">
                 <img src="https://tankeras94.blob.core.windows.net/catimages/@cat.ImagesId.FirstOrDefault()" class="card-img-top" alt="...">
                 <div class="card-body">
                     <h5 class="card-title">@cat.MostVotedNickname</h5>
                     <p class="card-text">@cat.MostVotedNickname; </p>
                     <a class="btn btn-primary" asp-controller="Cats" asp-action="Details" asp-route-id="@cat.Id">Details about @cat.MostVotedNickname</a>
-                    
+
                 </div>
             </div>
         </div>
 
     }
 </div>
+

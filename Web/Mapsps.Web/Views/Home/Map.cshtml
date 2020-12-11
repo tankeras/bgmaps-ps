@@ -34,7 +34,7 @@
         }
     </style>
 
-    <div id="map"></div>
+    <div id="map" class="ml-0 mr-0 mt-5" style="width:100%"></div>
 
     <script>
         mapboxgl.accessToken = 'pk.eyJ1IjoidGFua2VyYXMiLCJhIjoiY2tneG9oc2p5MGxxdTJzb2YwZzE1MXI0diJ9.vU-wP4S14RLZ-o5Fob48nA';
@@ -75,7 +75,7 @@
             var url = "https://tankeras94.blob.core.windows.net/catimages/" + roni[counter].ImagesId[0]
             var el = document.createElement('div');
             el.className = 'marker';
-            el.style.backgroundSize = "60px"
+            el.style.backgroundSize = "120px"
             el.style.backgroundImage =
                 'url(' + url + ')' ;
             el.style.width = marker.properties.iconSize[0] + 'px';

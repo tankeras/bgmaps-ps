@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Mapsps.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20201130194035_InitialCreate59")]
-    partial class InitialCreate59
+    [Migration("20201211155710_InitialCreate5")]
+    partial class InitialCreate5
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -148,8 +148,8 @@ namespace Mapsps.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("ConfirmedPetsCount")
-                        .HasColumnType("int");
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
@@ -160,6 +160,24 @@ namespace Mapsps.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Cats");
+                });
+
+            modelBuilder.Entity("Mapsps.Data.Models.ConfirmedPet", b =>
+                {
+                    b.Property<int>("CatId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("CatId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ConfirmedPets");
                 });
 
             modelBuilder.Entity("Mapsps.Data.Models.Image", b =>
@@ -259,6 +277,24 @@ namespace Mapsps.Data.Migrations
                     b.HasIndex("IsDeleted");
 
                     b.ToTable("Settings");
+                });
+
+            modelBuilder.Entity("Mapsps.Data.Models.Upvote", b =>
+                {
+                    b.Property<int>("NicknameId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("NicknameId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Upvotes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -365,6 +401,21 @@ namespace Mapsps.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("Mapsps.Data.Models.ConfirmedPet", b =>
+                {
+                    b.HasOne("Mapsps.Data.Models.Cat", "Cat")
+                        .WithMany("ConfirmedPets")
+                        .HasForeignKey("CatId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Mapsps.Data.Models.ApplicationUser", "User")
+                        .WithMany("ConfirmedPets")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Mapsps.Data.Models.Image", b =>
                 {
                     b.HasOne("Mapsps.Data.Models.Cat", "Cat")
@@ -383,6 +434,21 @@ namespace Mapsps.Data.Migrations
                     b.HasOne("Mapsps.Data.Models.Cat", "Cat")
                         .WithMany("Nicknames")
                         .HasForeignKey("CatId");
+                });
+
+            modelBuilder.Entity("Mapsps.Data.Models.Upvote", b =>
+                {
+                    b.HasOne("Mapsps.Data.Models.Nickname", "Nickname")
+                        .WithMany("Upvotes")
+                        .HasForeignKey("NicknameId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Mapsps.Data.Models.ApplicationUser", "User")
+                        .WithMany("Upvotes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

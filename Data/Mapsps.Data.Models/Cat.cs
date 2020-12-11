@@ -10,20 +10,25 @@ namespace Mapsps.Data.Models
         {
             this.Images = new HashSet<Image>();
             this.Nicknames = new HashSet<Nickname>();
+            this.ConfirmedPets = new HashSet<ConfirmedPet>();
         }
 
         public ICollection<Image> Images { get; set; }
 
         public ICollection<Nickname> Nicknames { get; set; }
 
-        public int ConfirmedPetsCount { get; set; }
+        public ICollection<ConfirmedPet> ConfirmedPets { get; set; }
 
         public string MostVotedNickname => this.Nicknames.Count > 0 ? this.Nicknames.OrderBy(x => x.Votes).LastOrDefault().Name : string.Empty;
 
         public double MostRecentLatitude => this.Images.LastOrDefault().Latitude;
 
         public double MostRecentLongitude => this.Images.LastOrDefault().Longitude;
-      
+
+        public string City { get; set; }
+
+
+
     }
 
 }

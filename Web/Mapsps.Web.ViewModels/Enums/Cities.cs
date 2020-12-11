@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Mapsps.Data.Models
+namespace Mapsps.Web.ViewModels.Enums
 {
-    public class UserNickname
+    public enum Cities
     {
 
     }

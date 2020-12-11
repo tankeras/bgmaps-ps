@@ -14,7 +14,7 @@ namespace Mapsps.Web.ViewModels
 
         public string Extension { get; set; }
 
-
+        public string Url => this.Id + this.Extension;
     }
 }
 

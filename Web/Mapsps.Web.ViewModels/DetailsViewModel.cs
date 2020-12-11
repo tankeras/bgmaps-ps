@@ -18,5 +18,9 @@ namespace Mapsps.Web.ViewModels
 
         public int ConfirmedPetsCount { get; set; }
 
+        public string City { get; set; }
+
+
+
     }
 }

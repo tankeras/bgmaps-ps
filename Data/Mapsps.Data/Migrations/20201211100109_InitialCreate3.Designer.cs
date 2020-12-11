@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Mapsps.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20201130182642_InitialCreate3")]
+    [Migration("20201211100109_InitialCreate3")]
     partial class InitialCreate3
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -70,6 +70,9 @@ namespace Mapsps.Data.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CatId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -98,6 +101,9 @@ namespace Mapsps.Data.Migrations
 
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("NicknameId")
+                        .HasColumnType("int");
 
                     b.Property<string>("NormalizedEmail")
                         .HasColumnType("nvarchar(256)")
@@ -128,7 +134,11 @@ namespace Mapsps.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CatId");
+
                     b.HasIndex("IsDeleted");
+
+                    b.HasIndex("NicknameId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
@@ -148,9 +158,6 @@ namespace Mapsps.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("ConfirmedPetsCount")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
@@ -160,6 +167,24 @@ namespace Mapsps.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Cats");
+                });
+
+            modelBuilder.Entity("Mapsps.Data.Models.ConfirmedPets", b =>
+                {
+                    b.Property<int>("CatId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("CatId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ConfirmedPets");
                 });
 
             modelBuilder.Entity("Mapsps.Data.Models.Image", b =>
@@ -259,6 +284,24 @@ namespace Mapsps.Data.Migrations
                     b.HasIndex("IsDeleted");
 
                     b.ToTable("Settings");
+                });
+
+            modelBuilder.Entity("Mapsps.Data.Models.Upvotes", b =>
+                {
+                    b.Property<int>("NicknameId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("NicknameId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Upvotes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -365,6 +408,32 @@ namespace Mapsps.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("Mapsps.Data.Models.ApplicationUser", b =>
+                {
+                    b.HasOne("Mapsps.Data.Models.Cat", null)
+                        .WithMany("Users")
+                        .HasForeignKey("CatId");
+
+                    b.HasOne("Mapsps.Data.Models.Nickname", null)
+                        .WithMany("Users")
+                        .HasForeignKey("NicknameId");
+                });
+
+            modelBuilder.Entity("Mapsps.Data.Models.ConfirmedPets", b =>
+                {
+                    b.HasOne("Mapsps.Data.Models.Cat", "Cat")
+                        .WithMany()
+                        .HasForeignKey("CatId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Mapsps.Data.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Mapsps.Data.Models.Image", b =>
                 {
                     b.HasOne("Mapsps.Data.Models.Cat", "Cat")
@@ -383,6 +452,21 @@ namespace Mapsps.Data.Migrations
                     b.HasOne("Mapsps.Data.Models.Cat", "Cat")
                         .WithMany("Nicknames")
                         .HasForeignKey("CatId");
+                });
+
+            modelBuilder.Entity("Mapsps.Data.Models.Upvotes", b =>
+                {
+                    b.HasOne("Mapsps.Data.Models.Nickname", "Nickname")
+                        .WithMany()
+                        .HasForeignKey("NicknameId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Mapsps.Data.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

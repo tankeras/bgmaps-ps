@@ -26,43 +26,13 @@ namespace Mapsps.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUsers",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    UserName = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
-                    Email = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(nullable: false),
-                    PasswordHash = table.Column<string>(nullable: true),
-                    SecurityStamp = table.Column<string>(nullable: true),
-                    ConcurrencyStamp = table.Column<string>(nullable: true),
-                    PhoneNumber = table.Column<string>(nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
-                    LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false),
-                    CreatedOn = table.Column<DateTime>(nullable: false),
-                    ModifiedOn = table.Column<DateTime>(nullable: true),
-                    IsDeleted = table.Column<bool>(nullable: false),
-                    DeletedOn = table.Column<DateTime>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Cats",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreatedOn = table.Column<DateTime>(nullable: false),
-                    ModifiedOn = table.Column<DateTime>(nullable: true),
-                    ConfirmedPetsCount = table.Column<int>(nullable: false)
+                    ModifiedOn = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -104,6 +74,72 @@ namespace Mapsps.Data.Migrations
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Nicknames",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CreatedOn = table.Column<DateTime>(nullable: false),
+                    ModifiedOn = table.Column<DateTime>(nullable: true),
+                    Name = table.Column<string>(nullable: true),
+                    CatId = table.Column<int>(nullable: true),
+                    Votes = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Nicknames", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Nicknames_Cats_CatId",
+                        column: x => x.CatId,
+                        principalTable: "Cats",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUsers",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    UserName = table.Column<string>(maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
+                    Email = table.Column<string>(maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(nullable: false),
+                    PasswordHash = table.Column<string>(nullable: true),
+                    SecurityStamp = table.Column<string>(nullable: true),
+                    ConcurrencyStamp = table.Column<string>(nullable: true),
+                    PhoneNumber = table.Column<string>(nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
+                    LockoutEnabled = table.Column<bool>(nullable: false),
+                    AccessFailedCount = table.Column<int>(nullable: false),
+                    CreatedOn = table.Column<DateTime>(nullable: false),
+                    ModifiedOn = table.Column<DateTime>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    DeletedOn = table.Column<DateTime>(nullable: true),
+                    CatId = table.Column<int>(nullable: true),
+                    NicknameId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetUsers_Cats_CatId",
+                        column: x => x.CatId,
+                        principalTable: "Cats",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AspNetUsers_Nicknames_NicknameId",
+                        column: x => x.NicknameId,
+                        principalTable: "Nicknames",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -202,7 +238,10 @@ namespace Mapsps.Data.Migrations
                     ModifiedOn = table.Column<DateTime>(nullable: true),
                     CatId = table.Column<int>(nullable: false),
                     UserId = table.Column<string>(nullable: true),
-                    Extension = table.Column<string>(nullable: true)
+                    Extension = table.Column<string>(nullable: true),
+                    Upvotes = table.Column<int>(nullable: false),
+                    Longitude = table.Column<double>(nullable: false),
+                    Latitude = table.Column<double>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -222,24 +261,55 @@ namespace Mapsps.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Nicknames",
+                name: "UserCats",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CatId = table.Column<int>(nullable: false),
+                    UserId = table.Column<string>(nullable: false),
+                    Id = table.Column<int>(nullable: false),
                     CreatedOn = table.Column<DateTime>(nullable: false),
-                    ModifiedOn = table.Column<DateTime>(nullable: true),
-                    Name = table.Column<string>(nullable: true),
-                    CatId = table.Column<int>(nullable: true),
-                    Votes = table.Column<int>(nullable: false)
+                    ModifiedOn = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Nicknames", x => x.Id);
+                    table.PrimaryKey("PK_UserCats", x => new { x.CatId, x.UserId });
                     table.ForeignKey(
-                        name: "FK_Nicknames_Cats_CatId",
+                        name: "FK_UserCats_Cats_CatId",
                         column: x => x.CatId,
                         principalTable: "Cats",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_UserCats_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserNicknames",
+                columns: table => new
+                {
+                    NicknameId = table.Column<int>(nullable: false),
+                    UserId = table.Column<string>(nullable: false),
+                    Id = table.Column<int>(nullable: false),
+                    CreatedOn = table.Column<DateTime>(nullable: false),
+                    ModifiedOn = table.Column<DateTime>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserNicknames", x => new { x.NicknameId, x.UserId });
+                    table.ForeignKey(
+                        name: "FK_UserNicknames_Nicknames_NicknameId",
+                        column: x => x.NicknameId,
+                        principalTable: "Nicknames",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_UserNicknames_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -277,9 +347,19 @@ namespace Mapsps.Data.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_CatId",
+                table: "AspNetUsers",
+                column: "CatId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_IsDeleted",
                 table: "AspNetUsers",
                 column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_NicknameId",
+                table: "AspNetUsers",
+                column: "NicknameId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
@@ -312,6 +392,16 @@ namespace Mapsps.Data.Migrations
                 name: "IX_Settings_IsDeleted",
                 table: "Settings",
                 column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserCats_UserId",
+                table: "UserCats",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserNicknames_UserId",
+                table: "UserNicknames",
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -335,16 +425,22 @@ namespace Mapsps.Data.Migrations
                 name: "Images");
 
             migrationBuilder.DropTable(
-                name: "Nicknames");
+                name: "Settings");
 
             migrationBuilder.DropTable(
-                name: "Settings");
+                name: "UserCats");
+
+            migrationBuilder.DropTable(
+                name: "UserNicknames");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Nicknames");
 
             migrationBuilder.DropTable(
                 name: "Cats");

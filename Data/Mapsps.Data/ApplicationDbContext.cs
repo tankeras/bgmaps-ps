@@ -34,6 +34,10 @@
 
         public DbSet<Nickname> Nicknames { get; set; }
 
+        public DbSet<ConfirmedPet> ConfirmedPets { get; set; }
+
+        public DbSet<Upvote> Upvotes { get; set; }
+
         public override int SaveChanges() => this.SaveChanges(true);
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
@@ -63,6 +67,10 @@
             EntityIndexesConfiguration.Configure(builder);
 
             var entityTypes = builder.Model.GetEntityTypes().ToList();
+
+            builder.Entity<ConfirmedPet>().HasKey(x => new { x.CatId, x.UserId });           
+            builder.Entity<Upvote>().HasKey(x => new { x.NicknameId, x.UserId });
+            //builder.Entity<ConfirmedPet>().HasOne<Cat>(x=>x.Cat).WithMany(x=>x.HoomansWhoPettedMe)
 
             // Set global query filter for not deleted entities only
             var deletableEntityTypes = entityTypes
