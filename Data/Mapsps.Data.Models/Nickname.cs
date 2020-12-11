@@ -8,6 +8,7 @@ namespace Mapsps.Data.Models
         public Nickname()
         {
             this.Upvotes = new HashSet<Upvote>();
+            this.Votes = 1;
         }
 
         public string Name { get; set; }

@@ -12,7 +12,7 @@ namespace Mapsps.Web.ViewModels
 
         public ICollection<ImageViewModel> Images { get; set; }       
 
-        public Dictionary<string, int> Nicknames { get; set; } 
+        public ICollection<NicknameViewModel> Nicknames { get; set; } 
 
         public string MostVotedNickname { get; set; }
 

@@ -71,7 +71,7 @@
             services.AddTransient<CatService>();
             services.AddTransient<ImageService>();
             services.AddTransient<UserService>();
-            services.AddHttpClient();
+            services.AddTransient<NicknameService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

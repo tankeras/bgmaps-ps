@@ -1,23 +1,51 @@
 ﻿using ExifLib;
+using Mapsps.Data;
+using Mapsps.Data.Models;
+using Mapsps.Web.ViewModels;
+using Mapsps.Web.ViewModels.ImageViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace Mapsps.Services
 {
     public class ImageService
     {
         private readonly IConfiguration config;
+        private readonly ApplicationDbContext db;
+        
 
-        public ImageService(IConfiguration config)
+        public ImageService(IConfiguration config,
+            ApplicationDbContext db
+            )
         {
             this.config = config;
+            this.db = db;
         }
+
+        public async Task AddImage(AddImageViewModel input, string userId)
+        {
+            var imageStream = input.Image.OpenReadStream();
+            await this.IsThereCatInImage(imageStream);
+            var coordinates = this.ExtractGeoData(imageStream);
+            Image newImage = new Image()
+            {
+                CatId = input.CatId,
+                Latitude = coordinates.latitude,
+                Longitude = coordinates.longitude,
+                UserId = userId,
+                Extension = Path.GetExtension(input.Image.FileName),
+            };
+        }
+
         public (double longitude, double latitude) ExtractGeoData(Stream stream)
         {
             using (ExifReader reader = new ExifReader(stream))
@@ -40,7 +68,7 @@ namespace Mapsps.Services
                 }
             }
         }
-        public async Task<ImageAnalysis> IsThereCatInImage (Stream stream)
+        public async Task IsThereCatInImage (Stream stream)
         {
             var key = config.GetValue<string>("ComputerVisionKey");
             var endpoint = config.GetValue<string>("ComputerVisionEndpoint");
@@ -48,9 +76,21 @@ namespace Mapsps.Services
             ComputerVisionClient client = new ComputerVisionClient(new ApiKeyServiceClientCredentials(key))
             { Endpoint = endpoint };
             List<VisualFeatureTypes?> features = new List<VisualFeatureTypes?>()
-                { VisualFeatureTypes.Tags };     
- 
-            return await client.AnalyzeImageInStreamAsync(stream, features);
+                { VisualFeatureTypes.Tags };                
+            var imageAnalysis = await client.AnalyzeImageInStreamAsync(stream, features);
+            var tags = imageAnalysis.Tags.ToList();
+            tags.Remove(tags.Where(x => x.Name == "outdoor").FirstOrDefault());
+            tags.Remove(tags.Where(x => x.Name == "iutdoor").FirstOrDefault());
+            tags.Remove(tags.Where(x => x.Name == "text").FirstOrDefault());
+
+            if (tags.Any(x => x.Name == "human face"))
+            {
+                throw new InvalidDataException("No cat can be that ugly");
+            }
+            if (!tags.Any(x => x.Name == "cat"))
+            {
+                throw new InvalidDataException($"You can upload this image to {tags.FirstOrDefault().Name}Maps");
+            }
         }
     }
 }

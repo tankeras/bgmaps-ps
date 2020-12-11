@@ -30,5 +30,19 @@ namespace Mapsps.Services
         {
             return this.db.ConfirmedPets.Where(x => x.CatId == catId).Count();
         }
+        public int HowManyCities()
+        {
+            var allCities = new List<string>();
+            foreach (var cat in db.Cats)
+            {
+                allCities.Add(cat.City);
+            }
+            return allCities.Distinct().Count();
+        }
+        public int HowManyCats()
+        {                    
+            return this.db.Cats.Count();
+        }
+
     }
 }

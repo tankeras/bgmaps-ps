@@ -70,8 +70,10 @@ namespace Mapsps.Web.Controllers
         }
 
         public async Task<IActionResult> Details(int id)
-        {
+        {           
             return this.View(await this.catService.GetDetailsAsync(id));
         }
+
+        //public ICollection<AddCatViewModel> ()
     }
 }

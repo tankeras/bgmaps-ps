@@ -1,30 +1,35 @@
-﻿@using Mapsps.Data.Models
-@using Mapsps.Data
-@using Mapsps.Services
-@using Microsoft.AspNetCore.Identity
-@using System.Security.Claims;
-@inject UserManager<ApplicationUser> userManager
-@model DetailsViewModel
-
+﻿@model DetailsViewModel
 @{
 }
 
 <div class="text-center">
     <h1>@Model.MostVotedNickname</h1>
     @foreach (var image in @Model.Images)
-    {       
-        <img src="https://tankeras94.blob.core.windows.net/catimages/@image.Url">
+    {
+        <img style="width:50%" src="https://tankeras94.blob.core.windows.net/catimages/@image.Url">
     }
     @foreach (var nickname in Model.Nicknames)
     {
         <p>
-            @nickname.Key - @nickname.Value;
+            @nickname.Name - @nickname.Votes
         </p>
+
 
     }
     <p>City: @Model.City</p>
     <p id="confirmed">Confirmed pets: @Model.ConfirmedPetsCount</p>
-    <a id="pet" class="btn btn-primary" asp-controller="Cats" asp-action="Details" asp-route-id="@Model.Id">I pet this писи</a>
+    <button id="suggest" type="button" class="btn btn-secondary">Suggest a nickname</button>
+    <a id="pet" class="btn btn-primary" asp-controller="Cats" asp-action="Details" asp-route-id="@Model.Id">I petted this писи</a>
+
+    <a id="add" class="btn btn-primary" asp-controller="Images" asp-action="Add">Add photo</a>
+
+    @*<form class="text-center mr-0" method="post" enctype="multipart/form-data">        
+        <div>
+            <label asp-for="Image"></label>
+            <input asp-for="Image" />
+        </div>        
+        <input type="submit" />
+    </form>*@
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>

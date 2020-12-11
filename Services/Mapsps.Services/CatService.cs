@@ -23,47 +23,29 @@ namespace Mapsps.Services
     public class CatService
     {
         private readonly ApplicationDbContext db;
-        private readonly IConfiguration config;
         private readonly BlobService blobService;
         private readonly ImageService imageService;
-        private readonly IHttpClientFactory clientFactory;
 
         public CatService(ApplicationDbContext db,
-            IConfiguration config,
             BlobService blobService,
-            ImageService imageService,
-            IHttpClientFactory clientFactory)
+            ImageService imageService
+          )
         {
-            this.db = db;
-            this.config = config;
+            this.db = db;            
             this.blobService = blobService;
             this.imageService = imageService;
-            this.clientFactory = clientFactory;
+            
         }
         public async Task<bool> CreateCatAsync(AddCatViewModel input, string userId)
-        {
-            var imageAnalysis = await imageService.IsThereCatInImage(input.Image.OpenReadStream());
-            var tags = imageAnalysis.Tags.ToList();
-            tags.Remove(tags.Where(x => x.Name == "outdoor").FirstOrDefault());
-            tags.Remove(tags.Where(x => x.Name == "iutdoor").FirstOrDefault());
-            tags.Remove(tags.Where(x => x.Name == "text").FirstOrDefault());
-            if (tags.Any(x => x.Name == "human face"))
-            {
-                throw new InvalidDataException("No cat can be that ugly");
-            }
-            if (!tags.Any(x => x.Name == "cat"))
-            {
-                throw new InvalidDataException($"You can upload this image to {tags.FirstOrDefault().Name}Maps");
-            }
-            var coordinates = this.imageService.ExtractGeoData(input.Image.OpenReadStream());
+        {          
+            await this.imageService.IsThereCatInImage(input.Image.OpenReadStream());                     
+            var coordinates = this.imageService.ExtractGeoData(input.Image.OpenReadStream());                                   
             var longitude = coordinates.longitude;
             var latitude = coordinates.latitude;
-
             if (latitude == 1)
             {
                 return false;
             }
-
             var cat = new Cat() 
             { 
                 City = await this.GetCityFromGeoData(latitude, longitude) 
@@ -117,7 +99,7 @@ namespace Mapsps.Services
                     ConfirmedPetsCount = x.ConfirmedPets.Count(),
                     MostVotedNickname = x.MostVotedNickname,
                     Images = new HashSet<ImageViewModel>(),
-                    Nicknames = new Dictionary<string, int>(),
+                    Nicknames = new HashSet<NicknameViewModel>(),
                     Id = x.Id,
                     City=x.City
                 })
@@ -125,7 +107,12 @@ namespace Mapsps.Services
 
             foreach (var nickname in this.db.Cats.Include("Nicknames").Where(x => x.Id == cat.Id).FirstOrDefault().Nicknames)
             {
-                cat.Nicknames.Add(nickname.Name, nickname.Votes);
+                cat.Nicknames.Add(new NicknameViewModel()
+                {
+                    Id=nickname.Id,
+                    Name=nickname.Name,
+                    Votes=nickname.Votes,
+                });
             }
 
             foreach (var image in this.db.Cats.Include("Images").Where(x => x.Id == cat.Id).FirstOrDefault().Images)
@@ -142,7 +129,7 @@ namespace Mapsps.Services
         }
         public async Task<string> GetCityFromGeoData(double latitude, double longitude)
         {
-            var client = new RestClient($"https://geocodeapi.p.rapidapi.com/GetNearestCities?latitude={latitude}&longitude={longitude}&range=5000");
+            var client = new RestClient($"https://geocodeapi.p.rapidapi.com/GetNearestCities?latitude={latitude}&longitude={longitude}&range=10000");
             var request = new RestRequest(Method.GET);
             request.AddHeader("x-rapidapi-key", "339665a255msh1b5ea06ce7ce333p1608b2jsn3091abb7c5a3");
             request.AddHeader("x-rapidapi-host", "geocodeapi.p.rapidapi.com");
@@ -150,7 +137,7 @@ namespace Mapsps.Services
             var responseCleaned = response.Content.Substring(5, response.Content.Length - 8);
             GeoDataViewModel geoData = JsonConvert.DeserializeObject<GeoDataViewModel>(responseCleaned);
             return geoData.City;
-        }
+        }      
     }
 }
 
