@@ -16,23 +16,73 @@
 
 
     }
-    <p>City: @Model.City</p>
+    <p>Region: @Model.City</p>
     <p id="confirmed">Confirmed pets: @Model.ConfirmedPetsCount</p>
-    <button id="suggest" type="button" class="btn btn-secondary">Suggest a nickname</button>
-    <a id="pet" class="btn btn-primary" asp-controller="Cats" asp-action="Details" asp-route-id="@Model.Id">I petted this писи</a>
+    <a id="pet" class="btn btn-primary" asp-controller="Cats" asp-action="Details" asp-route-catId="@Model.Id">I petted this писи</a>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#nicknameInput" aria-expanded="false" aria-controls="collapseExample">Suggest a nickname</button>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#imageInput" aria-expanded="false" aria-controls="collapseExample">Add photo</button>
 
-    <a id="add" class="btn btn-primary" asp-controller="Images" asp-action="Add">Add photo</a>
-
-    @*<form class="text-center mr-0" method="post" enctype="multipart/form-data">        
+    <form id="imageInput" class="text-center mr-0 collapse" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="All" class="text-danger"></div>
         <div>
-            <label asp-for="Image"></label>
-            <input asp-for="Image" />
-        </div>        
+            <input type="hidden" id="catId" name="catId" value=@Model.Id>
+            <input type="file" id="imageFile" class="form-control-file text-center" />
+        </div>
         <input type="submit" />
-    </form>*@
+
+    </form>
+    <p>
+        <form id="nicknameInput" class="text-center mr-0 collapse" method="post">
+            <div class="text-center" asp-validation-summary="All">
+                <input id="CatName" type="text" class="form-control text-center col-md-2 offset-md-5" name="Name" />
+                <input type="hidden" id="custId" name="catId" value=@Model.Id>
+            </div>
+            <input type="submit" />
+        </form>
+
+    </p>
+
+    <form id="form" name="form" enctype="multipart/form-data" method="post">
+        <div class="buttons">
+            <div class="upload-button">
+                <div class="label">Click me!</div>
+                <input id="files" name="files" type="file" size="1" @*multiple onchange="uploadFiles('files');"*@ />
+                <input type="submit" />
+            </div>
+        </div>
+    </form>
+
+
+
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
+    //$("#add").click(function () {
+    //    $("#imageInput").show();
+    //})
+
+    $("#form").submit(function uploadFiles() {
+        console.log(666)
+        var input = $("#form");
+        var files = input.files;
+        var formData = new FormData();
+
+        for (var i = 0; i != files.length; i++) {
+            formData.append("files", files[i]);
+        }
+        $.ajax(
+            {
+                url: "/Images/Add",
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: "POST",
+                success: function (data) {
+                    alert("Files Uploaded!");
+                }
+            }
+        );
+    })
     $("#pet").click(function (e) {
         console.log(5)
         e.preventDefault();
@@ -50,6 +100,60 @@
             })
         });
     })
+
+    $("#nicknameInput").submit(function (e) {
+        console.log(5)
+        var Name = $("#CatName").val();
+        var catId = @Model.Id;
+        e.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "/Nicknames/Add",
+            data: JSON.stringify({ "catId": catId, "Name": Name}),
+            contentType: "application/json; charset=utf-8",
+            processData: false,
+            success: (function (data) {
+
+                window.location.reload();
+            }),
+            error: (function (data) {
+                alert("This nickname already exists")
+            })
+        });
+
+    })
+    
+    
+    
+    
+
+    @*$("#imageInput").submit(function (e) {
+
+        
+        var form = $(this);
+        var formdata = new FormData(form)
+        console.log(5)       
+        var catId = @Model.Id;
+        console.log($(#imageFile).val())
+        e.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "/Images/Add",
+            data: formdata,
+            enctype: 'multipart/form-data'
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: (function (data) {
+
+                window.location.reload();
+            }),
+            error: (function (data) {
+                alert("This image neshto si")
+            })
+        });
+
+    })*@
 
 </script>
 

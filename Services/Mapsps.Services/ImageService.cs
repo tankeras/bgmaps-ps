@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -76,11 +79,11 @@ namespace Mapsps.Services
             ComputerVisionClient client = new ComputerVisionClient(new ApiKeyServiceClientCredentials(key))
             { Endpoint = endpoint };
             List<VisualFeatureTypes?> features = new List<VisualFeatureTypes?>()
-                { VisualFeatureTypes.Tags };                
-            var imageAnalysis = await client.AnalyzeImageInStreamAsync(stream, features);
+                { VisualFeatureTypes.Tags };
+            var imageAnalysis = await client.AnalyzeImageInStreamAsync(stream,features);
             var tags = imageAnalysis.Tags.ToList();
             tags.Remove(tags.Where(x => x.Name == "outdoor").FirstOrDefault());
-            tags.Remove(tags.Where(x => x.Name == "iutdoor").FirstOrDefault());
+            tags.Remove(tags.Where(x => x.Name == "indoor").FirstOrDefault());
             tags.Remove(tags.Where(x => x.Name == "text").FirstOrDefault());
 
             if (tags.Any(x => x.Name == "human face"))
@@ -91,6 +94,27 @@ namespace Mapsps.Services
             {
                 throw new InvalidDataException($"You can upload this image to {tags.FirstOrDefault().Name}Maps");
             }
+        }
+
+        public async Task<string> GetCityFromGeoData(double latitude, double longitude)
+        {
+            var client = new RestClient($"http://api.positionstack.com/v1/reverse?access_key=df528a260e19ac1570a3a7220cf32e3a&query={latitude},{longitude}&limit=1");
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("limit", "1");
+            request.AddHeader("fields", "results.locality,results.region");
+            IRestResponse response = await client.ExecuteAsync(request);
+            string responseCleaned = response.Content.Substring(9, response.Content.Length - 11);
+            dynamic config = JsonConvert.DeserializeObject<JObject>(responseCleaned);
+            if (config.locality == null)
+            {
+                if (config.region == "Sofiya")
+                {
+                    return "Sofia";
+                }
+                return (string)config.region;
+            }
+            return (string)config.locality;
+
         }
     }
 }

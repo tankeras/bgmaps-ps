@@ -26,5 +26,7 @@ namespace Mapsps.Web.ViewModels
 
         public double Longitude { get; set; }
 
+        public string City { get; set; }
+
     }
 }

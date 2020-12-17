@@ -32,7 +32,7 @@
 
         public async Task<IActionResult> Map()
         {                       
-            var jsonString = JsonSerializer.Serialize(await this.catService.GetAllCatsAsync());
+            var jsonString = JsonSerializer.Serialize(await this.catService.GetAllCatsAsync("top"));
             return this.View("Map", jsonString);
         }
         public IActionResult Privacy()

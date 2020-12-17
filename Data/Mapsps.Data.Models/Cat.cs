@@ -25,7 +25,7 @@ namespace Mapsps.Data.Models
 
         public double MostRecentLongitude => this.Images.LastOrDefault().Longitude;
 
-        public string City { get; set; }
+        public string Region { get; set; }
 
 
 

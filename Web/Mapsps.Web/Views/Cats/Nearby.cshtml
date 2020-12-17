@@ -1,14 +1,9 @@
-﻿@model ICollection<AllCatsViewModel>
-@using Mapsps.Data.Models
-@using Mapsps.Data
-@using Mapsps.Services
-@using Microsoft.EntityFrameworkCore;
-@inject ApplicationDbContext db
-@inject CatService catservice
+﻿@model ICollection<AllCatsViewModel>;
 @{
-   
+
 }
-<div class="m-0"></div>
+
+
 <div class="row">
     @foreach (var cat in Model)
     {
@@ -17,7 +12,7 @@
                 <img src="https://tankeras94.blob.core.windows.net/catimages/@cat.ImagesId.FirstOrDefault()" class="card-img-top" alt="...">
                 <div class="card-body">
                     <h5 class="card-title">@cat.MostVotedNickname</h5>
-                    <p class="card-text">@cat.City</p>
+                    <p class="card-text">@cat.MostVotedNickname; </p>
                     <a class="btn btn-primary" asp-controller="Cats" asp-action="Details" asp-route-id="@cat.Id">Details about @cat.MostVotedNickname</a>
 
                 </div>

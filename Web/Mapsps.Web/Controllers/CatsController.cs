@@ -17,16 +17,21 @@ namespace Mapsps.Web.Controllers
     {
         private readonly CatService catService;
         private readonly Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> userManager;
-        public CatsController(CatService catService, UserManager<ApplicationUser> userManager)
+        private readonly ImageService imageService;
+
+        public CatsController(CatService catService, 
+            UserManager<ApplicationUser> userManager,
+            ImageService imageService)
         {
             this.catService = catService;
             this.userManager = userManager;
+            this.imageService = imageService;
         }
 
         [Authorize]
-        public IActionResult Add()
+        public async Task<IActionResult> Add()
         {
-            
+            var ilina = await this.catService.GetNearbyCats(42.404555555555554, 25.57955);
             return this.View();
         }
 
@@ -34,6 +39,8 @@ namespace Mapsps.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Add(AddCatViewModel input)
         {
+            //var coordinates = this.imageService.ExtractGeoData(input.Image.OpenReadStream());
+            //var nearbyCats = await this.catService.GetNearbyCats(coordinates.latitude, coordinates.longitude);
             if (!ModelState.IsValid)
             {
                 return this.View();
@@ -42,7 +49,11 @@ namespace Mapsps.Web.Controllers
             try
             {               
                 if (await this.catService.CreateCatAsync(input, userId))
-                {                   
+                {
+                    //if (nearbyCats.Count > 0)
+                    //{
+                    //    return this.View("Nearby", nearbyCats);
+                    //}
                     return this.RedirectToAction("All");
                 }
                 else
@@ -51,29 +62,33 @@ namespace Mapsps.Web.Controllers
                     return this.View("Add");
                 }
             }
-            catch (InvalidDataException ex)
+            finally
             {
-                this.ModelState.AddModelError(string.Empty, ex.Message);
-                return this.View("Add");
+                int r = 5;
             }
-            catch (Exception ex)
-            {
-                this.ModelState.AddModelError(string.Empty, ex.Message /*"Image does not contain location data"*/);
-                return this.View("Add");
-            }
-            return this.RedirectToAction("All");
+            //catch (InvalidDataException ex)
+            //{
+            //    this.ModelState.AddModelError(string.Empty, ex.Message);
+            //    return this.View("Add");
+            //}
+            //catch (Exception ex)
+            //{
+            //    this.ModelState.AddModelError(string.Empty, ex.Message /*"Image does not contain location data"*/);
+            //    return this.View("Add");
+            //}                                  
+            
         }
 
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All(string sortOrder)
         {
-            return this.View(await this.catService.GetAllCatsAsync());
+            return this.View(await this.catService.GetAllCatsAsync(sortOrder));
         }
 
         public async Task<IActionResult> Details(int id)
         {           
             return this.View(await this.catService.GetDetailsAsync(id));
         }
-
-        //public ICollection<AddCatViewModel> ()
+     
+        
     }
 }

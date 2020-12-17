@@ -114,6 +114,9 @@ namespace Mapsps.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Region")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -146,14 +149,14 @@ namespace Mapsps.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Region")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -223,7 +226,7 @@ namespace Mapsps.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("CatId")
+                    b.Property<int>("CatId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedOn")
@@ -431,7 +434,9 @@ namespace Mapsps.Data.Migrations
                 {
                     b.HasOne("Mapsps.Data.Models.Cat", "Cat")
                         .WithMany("Nicknames")
-                        .HasForeignKey("CatId");
+                        .HasForeignKey("CatId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Mapsps.Data.Models.Upvote", b =>

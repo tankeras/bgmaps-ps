@@ -17,6 +17,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Mapsps.Services
 {
@@ -31,26 +32,26 @@ namespace Mapsps.Services
             ImageService imageService
           )
         {
-            this.db = db;            
+            this.db = db;
             this.blobService = blobService;
             this.imageService = imageService;
-            
+
         }
         public async Task<bool> CreateCatAsync(AddCatViewModel input, string userId)
-        {          
-            await this.imageService.IsThereCatInImage(input.Image.OpenReadStream());                     
-            var coordinates = this.imageService.ExtractGeoData(input.Image.OpenReadStream());                                   
+        {
+            await this.imageService.IsThereCatInImage(input.Image.OpenReadStream());
+            var coordinates = this.imageService.ExtractGeoData(input.Image.OpenReadStream());
             var longitude = coordinates.longitude;
             var latitude = coordinates.latitude;
             if (latitude == 1)
             {
                 return false;
             }
-            var cat = new Cat() 
-            { 
-                City = await this.GetCityFromGeoData(latitude, longitude) 
-            };             
-                
+            var cat = new Cat()
+            {
+                Region = await this.imageService.GetCityFromGeoData(latitude, longitude)
+            };
+
             cat.Nicknames.Add(new Nickname() { Name = input.Nickname });
             var image = new Image
             {
@@ -60,7 +61,7 @@ namespace Mapsps.Services
                 CatId = cat.Id,
                 Longitude = longitude,
                 Latitude = latitude,
-                
+
             };
             this.db.Images.Add(image);
             this.db.Cats.Add(cat);
@@ -68,8 +69,8 @@ namespace Mapsps.Services
             await this.blobService.UploadBlob(input.Image.OpenReadStream(), image.Id, image.Extension);
             return true;
         }
-        public async Task<ICollection<AllCatsViewModel>> GetAllCatsAsync()
-        {            
+        public async Task<ICollection<AllCatsViewModel>> GetAllCatsAsync(string sortOrder)
+        {
             var result = await this.db.Cats.Include("Nicknames").Include("ConfirmedPets").Include("Images")
                 .Select(x => new AllCatsViewModel
                 {
@@ -78,7 +79,8 @@ namespace Mapsps.Services
                     ImagesId = new HashSet<string>(),
                     Id = x.Id,
                     Latitude = x.MostRecentLatitude,
-                    Longitude = x.MostRecentLongitude
+                    Longitude = x.MostRecentLongitude,
+                    City = x.Region
                 })
                 .ToListAsync();
             foreach (var cat in result)
@@ -88,7 +90,19 @@ namespace Mapsps.Services
                     cat.ImagesId.Add(image.Id + image.Extension);
                 }
             }
-            return result;
+            switch (sortOrder)
+            {
+                case "Top":
+                    return result.OrderBy(x => x.ConfirmedPetsCount).ToList();
+                    break;
+                case "Nearby":
+                    return result.OrderByDescending(x => x.ConfirmedPetsCount).ToList();
+                    break;
+                default:
+                    return result.OrderBy(x => x.ConfirmedPetsCount).ToList();
+            }
+
+
         }
 
         public async Task<DetailsViewModel> GetDetailsAsync(int id)
@@ -101,7 +115,7 @@ namespace Mapsps.Services
                     Images = new HashSet<ImageViewModel>(),
                     Nicknames = new HashSet<NicknameViewModel>(),
                     Id = x.Id,
-                    City=x.City
+                    City = x.Region
                 })
                 .FirstOrDefaultAsync();
 
@@ -109,9 +123,9 @@ namespace Mapsps.Services
             {
                 cat.Nicknames.Add(new NicknameViewModel()
                 {
-                    Id=nickname.Id,
-                    Name=nickname.Name,
-                    Votes=nickname.Votes,
+                    Id = nickname.Id,
+                    Name = nickname.Name,
+                    Votes = nickname.Votes,
                 });
             }
 
@@ -127,19 +141,38 @@ namespace Mapsps.Services
             }
             return cat;
         }
-        public async Task<string> GetCityFromGeoData(double latitude, double longitude)
+
+        public async Task<List<AllCatsViewModel>> GetNearbyCats(double latitude, double longitude)
         {
-            var client = new RestClient($"https://geocodeapi.p.rapidapi.com/GetNearestCities?latitude={latitude}&longitude={longitude}&range=10000");
-            var request = new RestRequest(Method.GET);
-            request.AddHeader("x-rapidapi-key", "339665a255msh1b5ea06ce7ce333p1608b2jsn3091abb7c5a3");
-            request.AddHeader("x-rapidapi-host", "geocodeapi.p.rapidapi.com");
-            IRestResponse response = await client.ExecuteAsync(request);
-            var responseCleaned = response.Content.Substring(5, response.Content.Length - 8);
-            GeoDataViewModel geoData = JsonConvert.DeserializeObject<GeoDataViewModel>(responseCleaned);
-            return geoData.City;
-        }      
+            var nearbyCatIdsLatitude = new List<int>();
+            var nearbyCatIdsLongitude = new List<int>();
+            await this.db.Images.Where(x => Math.Abs(x.Latitude - latitude) <= 0.003).ForEachAsync(x => nearbyCatIdsLatitude.Add(x.CatId));
+            nearbyCatIdsLatitude.Count();
+            await this.db.Images.Where(x => Math.Abs(x.Longitude - longitude) <= 0.003).ForEachAsync(x => nearbyCatIdsLongitude.Add(x.CatId));
+            var intersectedList = nearbyCatIdsLatitude.Intersect(nearbyCatIdsLongitude).ToList();
+            var cats = await this.db.Cats
+                .Where(x => intersectedList
+                .Contains(x.Id))
+                .Select(x => new AllCatsViewModel()
+                {
+                    Id = x.Id,
+                    Latitude = x.MostRecentLatitude,
+                    Longitude = x.MostRecentLongitude,
+                    ImagesId = new HashSet<string>(),
+                })
+                .ToListAsync();
+            foreach (var cat in cats)
+            {
+                foreach (var image in this.db.Cats.Include("Images").Include("Nicknames").Where(x => x.Id == cat.Id).FirstOrDefault().Images)
+                {
+                    cat.ImagesId.Add(image.Id + image.Extension);
+                }
+            }
+            return cats;
+        }
     }
 }
+
 
 
 

@@ -15,6 +15,8 @@ namespace Mapsps.Data.Models
 
         public Cat Cat { get; set; }
 
+        public int CatId { get; set; }
+
         public int Votes { get; set; }
 
         public ICollection<Upvote> Upvotes { get; set; }

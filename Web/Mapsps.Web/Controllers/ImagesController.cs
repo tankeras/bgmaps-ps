@@ -15,30 +15,31 @@ namespace Mapsps.Web.Controllers
 {
     public class ImagesController : Controller
     {
-        private readonly ImageService imageService;    
+        private readonly ImageService imageService;
         public ImagesController(ImageService imageService)
         {
             this.imageService = imageService;
         }
+        [IgnoreAntiforgeryToken]
         [HttpPost]
-        public async Task<IActionResult> Add(AddImageViewModel input)
+        public async Task Add([FromBody]IFormFile files)
         {
             try
             {
-                await this.imageService.AddImage(input, User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                await this.imageService.AddImage(new AddImageViewModel(), User.FindFirst(ClaimTypes.NameIdentifier).Value);
             }
             catch (InvalidDataException ex)
             {
                 this.ModelState.AddModelError(string.Empty, ex.Message);
-                return this.View("Add");
+                
             }
             catch (Exception ex)
             {
                 this.ModelState.AddModelError(string.Empty, ex.Message /*"Image does not contain location data"*/);
-                return this.View("Add");
+                
             }
 
-            return View();
+            
         }
     }
 }

@@ -24,6 +24,8 @@ namespace Mapsps.Data.Models
 
         public ICollection<Upvote> Upvotes { get; set; }
 
+        public string Region { get; set; }
+
 
         // Audit info
         public DateTime CreatedOn { get; set; }
