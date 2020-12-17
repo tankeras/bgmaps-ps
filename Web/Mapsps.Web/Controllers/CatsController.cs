@@ -19,7 +19,7 @@ namespace Mapsps.Web.Controllers
         private readonly Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> userManager;
         private readonly ImageService imageService;
 
-        public CatsController(CatService catService, 
+        public CatsController(CatService catService,
             UserManager<ApplicationUser> userManager,
             ImageService imageService)
         {
@@ -44,10 +44,10 @@ namespace Mapsps.Web.Controllers
             if (!ModelState.IsValid)
             {
                 return this.View();
-            }            
+            }
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             try
-            {               
+            {
                 if (await this.catService.CreateCatAsync(input, userId))
                 {
                     //if (nearbyCats.Count > 0)
@@ -76,7 +76,7 @@ namespace Mapsps.Web.Controllers
             //    this.ModelState.AddModelError(string.Empty, ex.Message /*"Image does not contain location data"*/);
             //    return this.View("Add");
             //}                                  
-            
+
         }
 
         public async Task<IActionResult> All(string sortOrder)

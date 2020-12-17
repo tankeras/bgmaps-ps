@@ -93,10 +93,10 @@ namespace Mapsps.Services
             switch (sortOrder)
             {
                 case "Top":
-                    return result.OrderBy(x => x.ConfirmedPetsCount).ToList();
-                    break;
-                case "Nearby":
                     return result.OrderByDescending(x => x.ConfirmedPetsCount).ToList();
+                    break;
+                case "Neglected":
+                    return result.OrderBy(x => x.ConfirmedPetsCount).ToList();
                     break;
                 default:
                     return result.OrderBy(x => x.ConfirmedPetsCount).ToList();

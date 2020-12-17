@@ -6,9 +6,13 @@
 @inject ApplicationDbContext db
 @inject CatService catservice
 @{
-   
+
 }
+<a class="float-right" asp-controller="Cats" asp-action="All" asp-route-sortOrder="Top">Top Писис</a>
+<a  asp-controller="Cats" asp-action="All" asp-route-sortOrder="Neglected">Neglected Писис</a>
 <div class="m-0"></div>
+
+
 <div class="row">
     @foreach (var cat in Model)
     {
@@ -26,4 +30,5 @@
 
     }
 </div>
+
 
