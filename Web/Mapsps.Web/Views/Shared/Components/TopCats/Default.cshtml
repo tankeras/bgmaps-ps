@@ -1,20 +1,25 @@
 ﻿@using Mapsps.Web.ViewModels.CatViewModels
 @model List<TopCatsViewModel>
 
-<h1> Top 5 писис in @ViewData["Region"] </h1>
-@for (int i = 0; i < 5; i++)
-{
+
+@if(Model.Count()>6){
+    <h1> Top 5 писис in @ViewData["Region"] </h1>
+    @for (int i = 0; i < 5; i++)
+    {
     <p>
         <div class="col-sm-12">
             <div class="card">
-                <img src="https://tankeras94.blob.core.windows.net/catimages/@Model[i].ImageUrl" class="card-img-top" alt="...">
+                <img src="https://tankeras94.blob.core.windows.net/catimages/@Model[i]?.ImageUrl" class="card-img-top" alt="...">
                 <div class="card-body">
                     <h5 class="card-title">@Model[i].MostVotedNickname</h5>
-                    <p class="card-text">@Model[i].ConfirmedPetsCount</p>
-                    <a class="btn btn-primary" asp-controller="Cats" asp-action="Details" asp-route-id="@Model[i].Id">Details about @Model[i].MostVotedNickname</a>
+    <p class="card-text">@Model[i].ConfirmedPetsCount</p>
+    <a class="btn btn-primary" asp-controller="Cats" asp-action="Details" asp-route-id="@Model[i].Id">Details about @Model[i].MostVotedNickname</a>
 
+                    </div>
                 </div>
             </div>
-        </div>
-</p>
+    </p>
+    }
+
 }
+     

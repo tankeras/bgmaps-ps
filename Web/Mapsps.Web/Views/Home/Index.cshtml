@@ -1,5 +1,6 @@
 ﻿@using Mapsps.Common
 @using Mapsps.Services
+@using System.Security.Claims;
 @inject UserService userService
 @{
     this.ViewData["Title"] = "Home Page";
@@ -23,7 +24,7 @@
 
     <p>Click the button to get your coordinates.</p>
 
-    <button onclick="getLocation()">Try It</button>
+    <button onclick="getLocation()">Locate писис near me</button>
 
     <p id="demo"></p>
 </div>
@@ -40,13 +41,12 @@
     }
 
     function savePosition(position) {
-            $.ajax({
+        $.ajax({
             type: "POST",
             url: "/Users/SaveRegion/",
             data: JSON.stringify({ "Latitude": position.coords.latitude, "Longitude": position.coords.longitude }),
             contentType: "application/json; charset=utf-8",
             success: (function (data) {
-                alert("Success")
             }),
             error: (function (data) {
                 alert("Failure")
