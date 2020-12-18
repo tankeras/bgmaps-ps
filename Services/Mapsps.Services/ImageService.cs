@@ -78,7 +78,7 @@ namespace Mapsps.Services
             ComputerVisionClient client = new ComputerVisionClient(new ApiKeyServiceClientCredentials(key))
             { Endpoint = endpoint };
             List<VisualFeatureTypes?> features = new List<VisualFeatureTypes?>()
-                { VisualFeatureTypes.Tags };
+                { VisualFeatureTypes.Tags };          
             var imageAnalysis = await client.AnalyzeImageInStreamAsync(stream, features);
             var tags = imageAnalysis.Tags.ToList();
             tags.Remove(tags.Where(x => x.Name == "outdoor").FirstOrDefault());

@@ -62,20 +62,17 @@ namespace Mapsps.Web.Controllers
                     return this.View("Add");
                 }
             }
-            finally
+
+            catch (InvalidDataException ex)
             {
-                int r = 5;
+                this.ModelState.AddModelError(string.Empty, ex.Message);
+                return this.View("Add");
             }
-            //catch (InvalidDataException ex)
-            //{
-            //    this.ModelState.AddModelError(string.Empty, ex.Message);
-            //    return this.View("Add");
-            //}
-            //catch (Exception ex)
-            //{
-            //    this.ModelState.AddModelError(string.Empty, ex.Message /*"Image does not contain location data"*/);
-            //    return this.View("Add");
-            //}                                  
+            catch (Exception ex)
+            {
+                this.ModelState.AddModelError(string.Empty, ex.Message /*"Image does not contain location data"*/);
+                return this.View("Add");
+            }
 
         }
 

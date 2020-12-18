@@ -18,6 +18,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
 namespace Mapsps.Services
 {
@@ -39,7 +40,15 @@ namespace Mapsps.Services
         }
         public async Task<bool> CreateCatAsync(AddCatViewModel input, string userId)
         {
-            await this.imageService.IsThereCatInImage(input.Image.OpenReadStream());
+            try
+            {
+                await this.imageService.IsThereCatInImage(input.Image.OpenReadStream());
+            }
+            catch (ComputerVisionErrorException)
+            {
+
+            }   
+                       
             var coordinates = this.imageService.ExtractGeoData(input.Image.OpenReadStream());
             var longitude = coordinates.longitude;
             var latitude = coordinates.latitude;
