@@ -1,7 +1,7 @@
 ﻿@using Mapsps.Web.ViewModels.CatViewModels
 @model List<TopCatsViewModel>
 
-<h1> Top 5 писис in  </h1>
+<h1> Top 5 писис in @ViewData["Region"] </h1>
 @for (int i = 0; i < 5; i++)
 {
     <p>

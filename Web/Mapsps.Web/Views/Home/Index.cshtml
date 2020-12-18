@@ -1,6 +1,6 @@
 ﻿@using Mapsps.Common
 @using Mapsps.Services
-@inject UserService userService 
+@inject UserService userService
 @{
     this.ViewData["Title"] = "Home Page";
 }
@@ -9,3 +9,65 @@
     <h1 class="display-4">Welcome to @GlobalConstants.SystemName!</h1>
     <p>@userService.HowManyCats() hot and single писис in @userService.HowManyCities() cities await your scritches! </p>
 </div>
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<div class="text-center">
+
+    <p>Click the button to get your coordinates.</p>
+
+    <button onclick="getLocation()">Try It</button>
+
+    <p id="demo"></p>
+</div>
+
+<script>
+    var x = document.getElementById("demo");
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(savePosition);
+        } else {
+            x.innerHTML = "Geolocation is not supported by this browser.";
+        }
+    }
+
+    function savePosition(position) {
+            $.ajax({
+            type: "POST",
+            url: "/Users/SaveRegion/",
+            data: JSON.stringify({ "Latitude": position.coords.latitude, "Longitude": position.coords.longitude }),
+            contentType: "application/json; charset=utf-8",
+            success: (function (data) {
+                alert("Success")
+            }),
+            error: (function (data) {
+                alert("Failure")
+            })
+        });
+    }
+    function showError(error) {
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                x.innerHTML = "User denied the request for Geolocation."
+                break;
+            case error.POSITION_UNAVAILABLE:
+                x.innerHTML = "Location information is unavailable."
+                break;
+            case error.TIMEOUT:
+                x.innerHTML = "The request to get user location timed out."
+                break;
+            case error.UNKNOWN_ERROR:
+                x.innerHTML = "An unknown error occurred."
+                break;
+        }
+    }
+</script>
+

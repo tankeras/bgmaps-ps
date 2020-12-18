@@ -80,7 +80,7 @@ namespace Mapsps.Services
                     Id = x.Id,
                     Latitude = x.MostRecentLatitude,
                     Longitude = x.MostRecentLongitude,
-                    City = x.Region
+                    Region = x.Region
                 })
                 .ToListAsync();
             foreach (var cat in result)
@@ -99,7 +99,7 @@ namespace Mapsps.Services
                     return result.OrderBy(x => x.ConfirmedPetsCount).ToList();
                     break;
                 default:
-                    return result.OrderBy(x => x.ConfirmedPetsCount).ToList();
+                    return result;
             }
 
 

@@ -52,7 +52,7 @@ namespace Mapsps.Services
                     Id = x.Id,
                     Latitude = x.MostRecentLatitude,
                     Longitude = x.MostRecentLongitude,
-                    City = x.Region
+                    Region = x.Region
                 })
                 .ToListAsync();
             foreach (var cat in result)
@@ -78,6 +78,20 @@ namespace Mapsps.Services
         public int HowManyCats()
         {                    
             return this.db.Cats.Count();
+        }
+
+        public async Task SaveUserRegion(string region, string userId)
+        {
+            this.db.Users.Where(x => x.Id == userId).FirstOrDefault().Region = region;
+            await this.db.SaveChangesAsync();
+        }
+        public string GetUserRegion(string userId)
+        {
+            if (string.IsNullOrEmpty(userId)) 
+            {
+                return "";
+            }
+            return this.db.Users.Where(x => x.Id == userId).FirstOrDefault().Region;
         }
       
 
