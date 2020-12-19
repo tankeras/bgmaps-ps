@@ -7,11 +7,12 @@
     <h1>@Model.MostVotedNickname</h1>
     @foreach (var image in @Model.Images)
     {
-    <img style="width:50%" src="https://tankeras94.blob.core.windows.net/catimages/@image.Url">
+        <img style="width:50%" src="https://tankeras94.blob.core.windows.net/catimages/@image.Url">
     }
     <br />
     <br />
     <div>
+        Nicknames:
         @foreach (var nickname in Model.Nicknames)
     {
         <div name="nicknameName">
@@ -26,47 +27,47 @@
         </div>
     }
 
-        </div>
-        <br />
-        <p>Region: @Model.City</p>
-        <p id="confirmed">Confirmed pets: @Model.ConfirmedPetsCount</p>
-        <a id="pet" class="btn btn-primary" asp-controller="Cats" asp-action="Details" asp-route-catId="@Model.Id">I petted this писи</a>
-        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#nicknameInput" aria-expanded="false" aria-controls="collapseExample">Suggest a nickname</button>
-        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#imageInput" aria-expanded="false" aria-controls="collapseExample">Add photo</button>
+    </div>
+    <br />
+    <p>Region: @Model.City</p>
+    <p id="confirmed">Confirmed pets: @Model.ConfirmedPetsCount</p>
+    <a id="pet" class="btn btn-primary" asp-controller="Cats" asp-action="Details" asp-route-catId="@Model.Id">I petted this писи</a>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#nicknameInput" aria-expanded="false" aria-controls="collapseExample">Suggest a nickname</button>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#imageInput" aria-expanded="false" aria-controls="collapseExample">Add photo</button>
 
-        <form id="imageInput" class="text-center mr-0 collapse" method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div>
-                <input type="hidden" id="catId" name="catId" value=@Model.Id>
-                <input type="file" id="imageFile" class="form-control-file text-center" />
+    <!--<form id="imageInput" class="text-center mr-0 collapse" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div>
+            <input type="hidden" id="catId" name="catId" value=@Model.Id>
+            <input type="file" id="imageFile" class="form-control-file text-center" />
+        </div>
+        <input type="submit" />
+
+    <form id="form" name="form" enctype="multipart/form-data" method="post">
+        <div class="buttons">
+            <div class="upload-button">
+                <div class="label">Click me!</div>
+                <input id="files" name="files" type="file" size="1"--> @*multiple onchange="uploadFiles('files');"*@ <!--/>
+                <input type="submit" />
+            </div>
+        </div>
+    </form>
+    </form>-->
+
+    <p>
+        <form id="nicknameInput" class="text-center mr-0 collapse" method="post">
+            <div class="text-center" asp-validation-summary="All">
+                <input id="CatName" type="text" class="form-control text-center col-md-2 offset-md-5" name="Name" />
+                <input type="hidden" id="custId" name="catId" value=@Model.Id>
             </div>
             <input type="submit" />
-
-        </form>
-        <p>
-            <form id="nicknameInput" class="text-center mr-0 collapse" method="post">
-                <div class="text-center" asp-validation-summary="All">
-                    <input id="CatName" type="text" class="form-control text-center col-md-2 offset-md-5" name="Name" />
-                    <input type="hidden" id="custId" name="catId" value=@Model.Id>
-                </div>
-                <input type="submit" />
-            </form>
-
-        </p>
-
-        <form id="form" name="form" enctype="multipart/form-data" method="post">
-            <div class="buttons">
-                <div class="upload-button">
-                    <div class="label">Click me!</div>
-                    <input id="files" name="files" type="file" size="1" @*multiple onchange="uploadFiles('files');"*@ />
-                    <input type="submit" />
-                </div>
-            </div>
         </form>
 
-
-
-    </div>
+    </p>
+</div>
+<div>
+    <vc:mini-map> </vc:mini-map>
+</div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
     //$("#add").click(function () {

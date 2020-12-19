@@ -1,4 +1,7 @@
-﻿<html>
+﻿@model DetailsViewModel
+
+
+<html>
 <head>
     <meta charset="utf-8" />
     <title>Add custom icons with Markers</title>
@@ -7,15 +10,15 @@
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.css" rel="stylesheet" />
     <style>
         body {
-            margin: 0;
-            padding: 0;
+            margin: 10;
+            padding: 10;
         }
 
         #map {
             position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 100%;
+            
+            width: 20%;
+            height:20%
         }
     </style>
 </head>
@@ -32,7 +35,8 @@
 
     <div id="map"></div>
 
-    <script>        
+    <script>
+
         mapboxgl.accessToken = 'pk.eyJ1IjoidGFua2VyYXMiLCJhIjoiY2tneG9oc2p5MGxxdTJzb2YwZzE1MXI0diJ9.vU-wP4S14RLZ-o5Fob48nA'
         var geojson = {
             'type': 'FeatureCollection',
@@ -45,26 +49,28 @@
                     },
                     'geometry': {
                         'type': 'Point',
-                        'coordinates': [-66.324462890625, -16.024695711685304]
+                        'coordinates': [@Model.Images.First().Longitude, @Model.Images.First().Latitude]
                     }
-                }               
+                }
             ]
         };
 
         var map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/streets-v11',
-            center: [-65.017, -16.457],
-            zoom: 5
+            center: [@Model.Images.First().Longitude, @Model.Images.First().Latitude],
+            zoom: 13
         });
 
         // add markers to map
         geojson.features.forEach(function (marker) {
             // create a DOM element for the marker
+            var url = "https://tankeras94.blob.core.windows.net/catimages/@Model.Images.First().Url"
             var el = document.createElement('div');
             el.className = 'marker';
+            el.style.backgroundSize = "60px"
             el.style.backgroundImage =
-                'url(https://placekitten.com/g/' +
+                'url(' + url + ')';
                 marker.properties.iconSize.join('/') +
                 '/)';
             el.style.width = marker.properties.iconSize[0] + 'px';

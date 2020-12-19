@@ -60,17 +60,20 @@ namespace Mapsps.Services
             {
                 Region = await this.imageService.GetCityFromGeoData(latitude, longitude)
             };
-            Nickname nickname = new Nickname() 
-            { 
-                Name = input.Nickname
-            };
-
-            nickname.Upvotes.Add(new Upvote()
+            if (!string.IsNullOrEmpty(input.Nickname))
             {
-                UserId = userId,
-                NicknameId = nickname.Id
-            });
-            cat.Nicknames.Add(new Nickname() { Name = input.Nickname});
+                Nickname nickname = new Nickname()
+                {
+                    Name = input.Nickname
+                };
+                nickname.Upvotes.Add(new Upvote()
+                {
+                    UserId = userId,
+                    NicknameId = nickname.Id
+                });
+                cat.Nicknames.Add(new Nickname() { Name = input.Nickname });
+            }           
+         
             var image = new Image
             {
                 Extension = Path.GetExtension(input.Image.FileName),
