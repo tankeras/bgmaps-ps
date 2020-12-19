@@ -91,7 +91,7 @@ namespace Mapsps.Services
             {
                 return "";
             }
-            return this.db.Users.Where(x => x.Id == userId).FirstOrDefault().Region;
+            return this.db.Users.Where(x => x.Id == userId).FirstOrDefault()?.Region;
         }
       
 

@@ -46,33 +46,39 @@ namespace Mapsps.Web.Controllers
                 return this.View();
             }
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            try
-            {
-                if (await this.catService.CreateCatAsync(input, userId))
-                {
-                    //if (nearbyCats.Count > 0)
-                    //{
-                    //    return this.View("Nearby", nearbyCats);
-                    //}
-                    return this.RedirectToAction("All");
-                }
-                else
-                {
-                    this.ModelState.AddModelError(string.Empty, "Image does not contain location data");
-                    return this.View("Add");
-                }
-            }
+            await this.catService.CreateCatAsync(input, userId);
+            return this.View("Add");
+            //try
+            //{
+            //    if (await this.catService.CreateCatAsync(input, userId))
+            //    {
+            //        //if (nearbyCats.Count > 0)
+            //        //{
+            //        //    return this.View("Nearby", nearbyCats);
+            //        //}
+            //        return this.RedirectToAction("All");
+            //    }
+            //    else
+            //    {
+            //        this.ModelState.AddModelError(string.Empty, "Image does not contain location data");
+            //        return this.View("Add");
+            //    }
+            //}
+            //catch
+            //{
+            //    return this.View("Add");
+            //}
 
-            catch (InvalidDataException ex)
-            {
-                this.ModelState.AddModelError(string.Empty, ex.Message);
-                return this.View("Add");
-            }
-            catch (Exception ex)
-            {
-                this.ModelState.AddModelError(string.Empty, ex.Message /*"Image does not contain location data"*/);
-                return this.View("Add");
-            }
+            //catch (InvalidDataException ex)
+            //{
+            //    this.ModelState.AddModelError(string.Empty, ex.Message);
+            //    return this.View("Add");
+            //}
+            //catch (Exception ex)
+            //{
+            //    this.ModelState.AddModelError(string.Empty, ex.Message /*"Image does not contain location data"*/);
+            //    return this.View("Add");
+            //}
 
         }
 

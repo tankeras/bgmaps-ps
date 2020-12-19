@@ -19,7 +19,7 @@ namespace Mapsps.Data.Models
 
         public ICollection<ConfirmedPet> ConfirmedPets { get; set; }
 
-        public string MostVotedNickname => this.Nicknames.Count > 0 ? this.Nicknames.OrderBy(x => x.Votes).LastOrDefault().Name : string.Empty;
+        public string MostVotedNickname => this.Nicknames.Count > 0 ? this.Nicknames.OrderBy(x => x.Votes).ThenBy(x=>x.CreatedOn).LastOrDefault().Name : string.Empty;
 
         public double MostRecentLatitude => this.Images.LastOrDefault().Latitude;
 

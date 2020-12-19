@@ -60,8 +60,17 @@ namespace Mapsps.Services
             {
                 Region = await this.imageService.GetCityFromGeoData(latitude, longitude)
             };
+            Nickname nickname = new Nickname() 
+            { 
+                Name = input.Nickname
+            };
 
-            cat.Nicknames.Add(new Nickname() { Name = input.Nickname });
+            nickname.Upvotes.Add(new Upvote()
+            {
+                UserId = userId,
+                NicknameId = nickname.Id
+            });
+            cat.Nicknames.Add(new Nickname() { Name = input.Nickname});
             var image = new Image
             {
                 Extension = Path.GetExtension(input.Image.FileName),
@@ -80,7 +89,7 @@ namespace Mapsps.Services
         }
         public async Task<ICollection<AllCatsViewModel>> GetAllCatsAsync(string sortOrder)
         {
-            var result = await this.db.Cats.Include("Nicknames").Include("ConfirmedPets").Include("Images")
+            var result = await this.db.Cats.Include(x=>x.Nicknames).ThenInclude(x=>x.Upvotes).Include("ConfirmedPets").Include("Images")
                 .Select(x => new AllCatsViewModel
                 {
                     ConfirmedPetsCount = x.ConfirmedPets.Count,
@@ -110,8 +119,6 @@ namespace Mapsps.Services
                 default:
                     return result;
             }
-
-
         }
 
         public async Task<DetailsViewModel> GetDetailsAsync(int id)
@@ -128,13 +135,13 @@ namespace Mapsps.Services
                 })
                 .FirstOrDefaultAsync();
 
-            foreach (var nickname in this.db.Cats.Include("Nicknames").Where(x => x.Id == cat.Id).FirstOrDefault().Nicknames)
+            foreach (var nickname in this.db.Cats.Include(x=>x.Nicknames).ThenInclude(x=>x.Upvotes).Where(x => x.Id == cat.Id).FirstOrDefault().Nicknames)
             {
                 cat.Nicknames.Add(new NicknameViewModel()
                 {
                     Id = nickname.Id,
                     Name = nickname.Name,
-                    Votes = nickname.Votes,
+                    Votes = nickname.Upvotes.Count,
                 });
             }
 

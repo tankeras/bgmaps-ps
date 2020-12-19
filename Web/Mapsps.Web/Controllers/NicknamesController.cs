@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Mapsps.Web.Controllers
@@ -21,11 +22,18 @@ namespace Mapsps.Web.Controllers
         public async Task Add([FromBody] AddNicknameViewModel model)
 
         {
-            if (!await this.nicknameService.SuggestNickname(model.Name, model.catId))
+            string userId = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            if (!await this.nicknameService.SuggestNickname(model.Name, model.catId, userId))
             {
                 this.ModelState.AddModelError(String.Empty, "Username already exists");
                 throw new Exception();
             }           
+        }
+        public async Task<ActionResult> Upvote(int Id, int catId)
+        {
+            string userId = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            await this.nicknameService.Upvote(userId, Id);
+            return this.Redirect($"/Cats/Details/{catId}");
         }
     }
 }
