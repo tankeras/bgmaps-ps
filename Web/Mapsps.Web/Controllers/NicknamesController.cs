@@ -1,5 +1,6 @@
 ﻿using Mapsps.Services;
 using Mapsps.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ namespace Mapsps.Web.Controllers
         }
         [HttpPost]
         [IgnoreAntiforgeryToken]
+        [Authorize]
         public async Task Add([FromBody] AddNicknameViewModel model)
 
         {
@@ -29,6 +31,7 @@ namespace Mapsps.Web.Controllers
                 throw new Exception();
             }           
         }
+        [Authorize]
         public async Task<ActionResult> Upvote(int Id, int catId)
         {
             string userId = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;

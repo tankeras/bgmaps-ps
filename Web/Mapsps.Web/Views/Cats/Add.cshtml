@@ -5,20 +5,22 @@
 
 
 <form class="text-center mr-0 col-md-10" method="post" enctype="multipart/form-data">
+    <h6>Just add a photo, the location of the писи will automatically be extracted</h6>
     <div asp-validation-summary="All" class="text-danger"></div>
     <div>
         <label asp-for="Image"></label>
         <input asp-for="Image" />
-
     </div>
     <div>
         <label asp-for="Nickname"></label>
         <input asp-for="Nickname" />
 
     </div>
+    <h6 >Please only add friendly писис</h6>
     <input type="submit" />
 
 </form>
+    <p class="alert-danger text-center ">Maps-psps© Incorporated  does not take legal responsibility for injuries caused by aggressive писис</pclass="alert-danger">
 
 <aside class="col-md-2 float-right">
     <vc:top-cats> </vc:top-cats>

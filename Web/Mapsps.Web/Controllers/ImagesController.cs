@@ -10,6 +10,7 @@ using Mapsps.Data.Models;
 using System.Security.Claims;
 using Mapsps.Web.ViewModels.ImageViewModels;
 using System.IO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Mapsps.Web.Controllers
 {
@@ -22,6 +23,7 @@ namespace Mapsps.Web.Controllers
         }
         [IgnoreAntiforgeryToken]
         [HttpPost]
+        [Authorize]
         public async Task Add([FromBody]IFormFile files)
         {
             try

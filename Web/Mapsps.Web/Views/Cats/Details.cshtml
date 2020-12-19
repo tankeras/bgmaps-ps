@@ -14,26 +14,35 @@
     <div>
         Nicknames:
         @foreach (var nickname in Model.Nicknames)
-    {
-        <div name="nicknameName">
-            <a name="nicknameName" id="@nickname.Id">
-                @nickname.Name -
-            </a>
-            <a name="nicknameVotes" id="@nickname.Id">
-                @nickname.Votes votes
-            </a>
+        {
+            <div name="nicknameName">
+                <a name="nicknameName" id="@nickname.Id">
+                    @nickname.Name -
+                </a>
+                <a name="nicknameVotes" id="@nickname.Id">
+                    @nickname.Votes votes
+                </a>
 
-            <a id="upvote" class="btn btn-secondary" asp-controller="Nicknames" asp-action="Upvote" asp-route-Id="@nickname.Id" asp-route-catId="@Model.Id">Upvote</a>
-        </div>
-    }
+                <a id="upvote" class="btn btn-secondary" asp-controller="Nicknames" asp-action="Upvote" asp-route-Id="@nickname.Id" asp-route-catId="@Model.Id">Upvote</a>
+            </div>
+        }
 
     </div>
     <br />
     <p>Region: @Model.City</p>
     <p id="confirmed">Confirmed pets: @Model.ConfirmedPetsCount</p>
     <a id="pet" class="btn btn-primary" asp-controller="Cats" asp-action="Details" asp-route-catId="@Model.Id">I petted this писи</a>
-    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#nicknameInput" aria-expanded="false" aria-controls="collapseExample">Suggest a nickname</button>
-    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#imageInput" aria-expanded="false" aria-controls="collapseExample">Add photo</button>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#nicknameInput" aria-expanded="false" aria-controls="collapseExample">Suggest a nickname</button>
+        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#imageInput" aria-expanded="false" aria-controls="collapseExample">Add photo</button>
+    }
+    else
+    {
+        <a href="/Identity/Account/Register">Register to add a photo or suggest a nickname</a>
+    }
+
+
 
     <!--<form id="imageInput" class="text-center mr-0 collapse" method="post" enctype="multipart/form-data">
         <div asp-validation-summary="All" class="text-danger"></div>
@@ -47,7 +56,9 @@
         <div class="buttons">
             <div class="upload-button">
                 <div class="label">Click me!</div>
-                <input id="files" name="files" type="file" size="1"--> @*multiple onchange="uploadFiles('files');"*@ <!--/>
+                <input id="files" name="files" type="file" size="1"-->
+    @*multiple onchange="uploadFiles('files');"*@
+    <!--/>
                 <input type="submit" />
             </div>
         </div>
@@ -62,7 +73,6 @@
             </div>
             <input type="submit" />
         </form>
-
     </p>
 </div>
 <div>
